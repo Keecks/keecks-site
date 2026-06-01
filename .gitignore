@@ -1,0 +1,63 @@
+# Dependencies
+/node_modules
+
+# Next.js build output
+/.next/
+/out/
+/build
+
+# Environment variables — NEVER commit these
+.env*.local
+.env
+
+# Vercel
+.vercel
+
+# Claude Code local settings
+.claude/
+
+# System
+.DS_Store
+*.pem
+*.tsbuildinfo
+next-env.d.ts
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Design files & private assets — local only
+/figma/
+/confronto/
+/fotogrammi/
+/scripts/
+/details/
+/to_add/
+/video finale/
+/Hear Keecks in action/
+/How It works/
+/designt to protect presence/
+
+# Dev/debug scripts
+check-fonts.js
+screenshot.js
+dev-log.txt
+
+# All screenshot / dev image files
+/screen/
+ss-figma-size.png
+screenshot-mobile.png
+sec-1-hero.png
+sec-full-nohero.png
+ss-desktop.png
+ss-full.png
+ss-hero.png
+ss-static.png
+
+# All video files (frames in /public/frames/ are used instead of video)
+*.mp4
+
+# Commercial font source files — keep only woff2 for web deployment
+/public/fonts/*.otf
+/public/fonts/*.ttf
