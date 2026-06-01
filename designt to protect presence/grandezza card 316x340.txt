@@ -1,0 +1,23 @@
+grandezza card 316x340
+distanza 10
+
+
+Designed to
+protect presence.
+(pretendard medium 21
+line h 150% letter spacing 0%)
+
+The real value of automation isn’t speed. 
+It’s creating space for focus, attention, 
+and human connection.
+(Helvetica neue light 15
+line height 130% letter spacing -0.18)
+
+Tailored, 
+not templated.
+(pretendard medium 21
+line h 150% letter spacing 0%)
+
+Tailored to your business — not built from a generic template. From tone to customer flow, every detail feels aligned with your brand.
+(Helvetica neue light 15
+line height 130% letter spacing -0.18)

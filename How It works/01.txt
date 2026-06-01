@@ -1,0 +1,31 @@
+grandezza card 340x246
+distanza laterale 11
+
+01
+We set it up for you
+(Pretendard medium 18
+line h 150% e letter spacing 0%)
+
+Our team connects everything behind the scenes.
+Helvetica neue light 15
+line h 130% line spacing -0.18px
+
+02
+We build it around you
+(Pretendard medium 18
+line h 150% e letter spacing 0%)
+
+We customize tone and services to match your 
+business, integrating it in your booking system
+Helvetica neue light 15
+line h 130% line spacing -0.18px
+
+03
+Keecks takes care. You stay present.
+(Pretendard medium 18
+line h 150% e letter spacing 0%)
+
+Calls and bookings run quietly in the background,
+so you can focus on what matters most.
+Helvetica neue light 15
+line h 130% line spacing -0.18px
