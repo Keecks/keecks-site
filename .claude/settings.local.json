@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(New-Item *)",
+      "PowerShell(Copy-Item *)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(netstat *)",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:3000\" -TimeoutSec 20 -UseBasicParsing; Write-Output \"HTTP $\\($r.StatusCode\\)\" } catch { Write-Output \"Error: $_\" })",
+      "PowerShell(Stop-Process *)",
+      "PowerShell(Get-Command *)",
+      "PowerShell(Receive-Job *)",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:3000\" -TimeoutSec 10 -UseBasicParsing; \"HTTP $\\($r.StatusCode\\) OK\" } catch { \"Error: $_\" })",
+      "PowerShell(Start-Process -FilePath \"cmd.exe\" -ArgumentList \"/c\", \"cd /d C:\\\\Users\\\\beltr\\\\Desktop\\\\keecks_site && npm run dev\" -WindowStyle Normal; Start-Sleep -Seconds 8; try { $r = Invoke-WebRequest -Uri \"http://localhost:3000\" -TimeoutSec 5 -UseBasicParsing; \"HTTP $\\($r.StatusCode\\)\" } catch { \"Not up yet\" })",
+      "PowerShell(Get-NetTCPConnection *)",
+      "PowerShell(findstr *)",
+      "PowerShell(taskkill *)",
+      "PowerShell(if \\(Test-Path \"C:\\\\Users\\\\beltr\\\\Desktop\\\\keecks_site\\\\to_add\\\\pretendard-extracted\"\\) { Get-ChildItem \"C:\\\\Users\\\\beltr\\\\Desktop\\\\keecks_site\\\\to_add\\\\pretendard-extracted\" -Recurse | Where-Object { $_.Name -match \"\\\\.\\(woff2|woff|ttf\\)$\" } | Select-Object FullName } else { Write-Host \"NOT EXTRACTED\" })",
+      "PowerShell(cd \"C:\\\\Users\\\\beltr\\\\Desktop\\\\keecks_site\"; Start-Process -NoNewWindow -FilePath \"npx\" -ArgumentList \"next\",\"dev\",\"--port\",\"3000\" -PassThru | Select-Object Id; Start-Sleep -Seconds 14; \\(Invoke-WebRequest -Uri \"http://localhost:3000\" -UseBasicParsing -TimeoutSec 8 -ErrorAction SilentlyContinue\\).StatusCode)",
+      "PowerShell(cd \"C:\\\\Users\\\\beltr\\\\Desktop\\\\keecks_site\"; \\(Invoke-WebRequest -Uri \"http://localhost:3000\" -UseBasicParsing -TimeoutSec 10 -ErrorAction SilentlyContinue\\).StatusCode)",
+      "PowerShell(Get-Job *)",
+      "PowerShell(Out-Null *)",
+      "PowerShell($r = try { \\(Invoke-WebRequest -Uri \"http://127.0.0.1:3000\" -UseBasicParsing -TimeoutSec 10\\).StatusCode } catch { \"ERR: $_\" }; Write-Host \"Status: $r\")",
+      "PowerShell(Add-Type -AssemblyName System.Drawing; $img = [System.Drawing.Image]::FromFile\\(\"C:\\\\Users\\\\beltr\\\\Desktop\\\\keecks_site\\\\to_add\\\\Group 14.png\"\\); Write-Host \"Width: $\\($img.Width\\) Height: $\\($img.Height\\)\"; $img.Dispose\\(\\))",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\beltr\\\\Desktop\\\\keecks_site\\\\public\\\\fonts\" | Select-Object Name, @{N='KB';E={[math]::Round\\($_.Length/1KB,1\\)}})",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\beltr\\\\Desktop\\\\keecks_site\\\\to_add\" -Recurse | Where-Object { !$_.PSIsContainer } | Select-Object FullName)",
+      "PowerShell(Start-Sleep -Seconds 3; $r = try { \\(Invoke-WebRequest -Uri \"http://127.0.0.1:3000\" -UseBasicParsing -TimeoutSec 10\\).StatusCode } catch { \"ERR\" }; Write-Host \"Status: $r\")",
+      "PowerShell(cd \"C:\\\\Users\\\\beltr\\\\Desktop\\\\keecks_site\"; $puppeteer = Test-Path \"node_modules\\\\puppeteer\"; $playwright = Test-Path \"node_modules\\\\playwright\"; $pw2 = Test-Path \"node_modules\\\\@playwright\"; Write-Host \"puppeteer: $puppeteer | playwright: $playwright | @playwright: $pw2\")",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\beltr\\\\Desktop\\\\keecks_site\\\\public\\\\images\" | Select-Object Name, @{N='KB';E={[math]::Round\\($_.Length/1KB,1\\)}})",
+      "PowerShell(Get-Item \"C:\\\\Users\\\\beltr\\\\Desktop\\\\keecks_site\\\\public\\\\bg.mp4\",\"C:\\\\Users\\\\beltr\\\\Desktop\\\\keecks_site\\\\public\\\\bg-mobile.mp4\",\"C:\\\\Users\\\\beltr\\\\Desktop\\\\keecks_site\\\\public\\\\animation-mobile.mp4\" | Select-Object Name, @{N='MB';E={[math]::Round\\($_.Length/1MB,2\\)}})",
+      "PowerShell(Test-Path *)",
+      "PowerShell(Stop-Job *)",
+      "PowerShell(npm install *)",
+      "PowerShell(node scripts/convert-frames.js)",
+      "PowerShell(node scripts/convert-frames-horizontal.js)",
+      "PowerShell(winget install *)",
+      "PowerShell(git *)"
+    ]
+  }
+}
