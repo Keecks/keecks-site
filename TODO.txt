@@ -1,0 +1,76 @@
+═══════════════════════════════════════════════════════════════
+  KEECKS.AI — TODO LIST
+  Aggiornato: 2026-06-04
+═══════════════════════════════════════════════════════════════
+
+GENERICHE
+─────────────────────────────────────────────────────────────
+- [x] URLs "/it" per le pagine in italiano (keecks.ai/it, /it/book, /it/book/confirmed, /it/privacy, /it/cookies)
+- [x] Se schiaccio refresh e sono sul sito italiano, rimango sul sito italiano (LanguageContext da pathname)
+
+HOMEPAGE
+─────────────────────────────────────────────────────────────
+- [x] Aumenta un po' spazio tra EN e IT in verticale
+- [x] Get Started → Request a Demo (navbar + CTA footer)
+- [x] Pulsante Request a Demo → pagina contatti (/book)
+- [ ] Sfondo dinamico: mandami mp4 per sistemare il loop
+      (file attuale: public/bg.mp4)
+- [x] Togliamo la barra di scorrimento a destra
+- [x] In alcuni cellulari appare pulsante play sullo sfondo → rimosso
+- [x] "More clients. Less thoughts." iniziale: più grande come da figma
+- [x] Cookie banner EN → "Cookies are used to improve your experience.
+      Learn more Ok" (testo sottolineato, sparisce allo scroll)
+- [x] Cookie banner ITA → "Si utilizzano i cookie per migliorare
+      la tua esperienza. Scopri di più Ok"
+- [ ] Video/fotogrammi: aggiornamento in attesa asset
+- [x] Cerchi semi-trasparenti come da figma
+- [x] AI Voice Assistant: V e A maiuscole, singolare (senza S)
+- [x] Aggiusta grandezze "The AI assistant that handles your calls.
+      24/7. Even when you're busy. Even when your business is closed."
+- [x] "Voice Demo": D maiuscola
+- [x] "Hear Keecks in action" — grandezze come da figma
+- [ ] Grafica vocali: luce bianca attorno ai rettangoli,
+      industrie non attive più trasparenti come da figma
+- [x] Progresso audio coincide con il progresso reale (wall-clock fix)
+- [ ] Live in three steps: grandezze font e icone come da figma
+      ("Keecks takes care. You stay present." in 1 riga)
+- [ ] Designed to protect presence + testi sotto: grandezze come da figma
+- [x] "FAQ" dentro il cerchio: centrato | "Still have questions?":
+      centrato e grandezza giusta come da figma
+- [x] FAQ "La voce sembrerà quella di un robot?" →
+      "Clicca qui per sentire come suona." = link ancora a #voice-demo
+- [x] FAQ "Quanto costa Keecks?" →
+      "Richiedi una Demo" = link a /book
+- [ ] "Meno chiamate da gestire. Più spazio per respirare." in 2 righe
+- [x] Footer: "More clients. Less thoughts." più vicino al logo
+- [ ] Versione desktop da sistemare
+
+PAGINA CONTATTI
+─────────────────────────────────────────────────────────────
+- [x] Togliere overlap del logo se scorri in basso (scroll state)
+- [x] Logo Keecks e tasto How it works = stessa grandezza della home
+- [ ] Grandezza titolo come da figma
+- [ ] Data allineata a sinistra come da figma
+- [x] Giorno precedente e giorno stesso non prenotabile (min = domani)
+- [ ] Contorno del form come da figma (luce attorno)
+- [ ] Pulsante "Book a Demo" come da figma
+- [x] Togliere "Lunch break" / "Evening" — tutti gli orari stessa grandezza
+- [ ] Messaggio conferma nel sito dopo prenotazione + logo Keecks
+- [ ] E-mail di conferma dopo Book a Demo
+- [ ] Logo Keecks e "Come funziona" da pagina /book italiana
+      → rimanda a homepage italiana (/it), non inglese
+- [ ] Desktop da sistemare
+
+AGGIUNTIVE
+─────────────────────────────────────────────────────────────
+- [ ] Favicon con logo Keecks
+- [ ] SEO Meta tag e Meta description + rinominare/ricaricare 2 immagini
+- [ ] Landing specifica per raccogliere leads (da discutere in call)
+- [ ] Installare Meta Pixel sulla nuova landing page
+
+═══════════════════════════════════════════════════════════════
+  STEP SUCCESSIVI
+  Step 2 — Architettura /it (routing + persistenza lingua)
+  Step 3 — Restyling visivo (figma section by section)
+  Step 4 — Asset in attesa (video, frame, favicon, SEO, pixel)
+═══════════════════════════════════════════════════════════════
