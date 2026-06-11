@@ -277,7 +277,8 @@ export default function LandingIT() {
       <div className="cta-footer-wrap">
         <div className="cta__glow" aria-hidden />
 
-        <section className="cta" style={{ paddingTop: 70, paddingBottom: 80, paddingInline: 0 }}>
+        <section className="section cta" style={{ paddingTop: 70, paddingBottom: 80, paddingInline: 0 }}>
+          <div className="cta__glow" aria-hidden />
           <div style={{ ...inner, textAlign: 'center' }}>
             <h2 className="lp-cta__title">
               Meno chiamate da gestire.<br />
