@@ -1,10 +1,49 @@
+# Dependencies (safety net — Vercel should ignore these anyway)
+node_modules/
+
+# Design / private assets — never deploy these
 figma/
+landing page/
+
+# Webp frame sequences — large, not needed at runtime
+public/frames/
 confronto/
 fotogrammi/
+fotogrammi_ita/
 scripts/
 details/
 to_add/
-*.mp4
+Hear Keecks in action/
+How It works/
+designt to protect presence/
+
+# Videos — exclude unused ones (bg.mp4 IS needed for the background)
+public/bg-mobile.mp4
+public/bg-desktop.mp4
+public/animation.mp4
+
+# Dev tools
 check-fonts.js
 screenshot.js
 dev-log.txt
+
+# Screenshot files at repo root
+screen/
+screenshot-mobile.png
+sec-1-hero.png
+sec-full-nohero.png
+ss-desktop.png
+ss-full.png
+ss-hero.png
+ss-static.png
+ss-figma-size.png
+
+# Claude Code local settings
+.claude/
+
+# Unused font source files (not referenced in globals.css)
+public/fonts/Canela-Light.otf
+public/fonts/Canela-LightItalic.otf
+public/fonts/Canela-Regular.otf
+public/fonts/Canela-RegularItalic.otf
+public/fonts/PretendardVariable.ttf
