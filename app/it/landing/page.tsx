@@ -249,8 +249,8 @@ export default function LandingIT() {
         </div>
       </section>
 
-      {/* ── Section 2 — Demo AI (sfondo terracotta solido) ── */}
-      <section className="section" style={{ background: '#5C1A08', paddingTop: 52, paddingBottom: 48, paddingInline: 0 }}>
+      {/* ── Section 2 — Demo AI ── */}
+      <section className="section" style={{ paddingTop: 52, paddingBottom: 48, paddingInline: 0 }}>
         <div style={inner}>
           <h2 className="lp-demo__title">
             L&apos;assistente AI per il tuo salone di parrucchieri.{' '}
@@ -265,9 +265,9 @@ export default function LandingIT() {
         </div>
       </section>
 
-      {/* ── Section 3 — Form (sfondo bianco) ── */}
+      {/* ── Section 3 — Form ── */}
       <section className="lp-book" id="prenota">
-        <div style={{ ...inner, position: 'static' }}>
+        <div style={inner}>
           <span className="lp-book__label">Prenota una Demo</span>
           <BookForm />
         </div>
@@ -290,17 +290,17 @@ export default function LandingIT() {
 
         <footer className="lp-footer">
           <Link href="/it" className="lp-footer__logo" aria-label="Keecks">
-            <LogoSvg fill="#111" />
+            <LogoSvg />
           </Link>
           <p className="lp-footer__tagline">More clients. Less thoughts.</p>
           <nav className="lp-footer__social" aria-label="Social media">
             <a href="https://www.instagram.com/keecks.ai" aria-label="Instagram" className="lp-footer__social-link">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="#111">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="rgba(231,231,231,0.70)">
                 <path d="M16 2H8a6 6 0 00-6 6v8a6 6 0 006 6h8a6 6 0 006-6V8a6 6 0 00-6-6zm4 14a4 4 0 01-4 4H8a4 4 0 01-4-4V8a4 4 0 014-4h8a4 4 0 014 4v8zm-8-9a5 5 0 100 10A5 5 0 0012 7zm0 8a3 3 0 110-6 3 3 0 010 6zm5.5-9a1 1 0 100 2 1 1 0 000-2z"/>
               </svg>
             </a>
             <a href="https://www.tiktok.com/@keecks.ai" aria-label="TikTok" className="lp-footer__social-link">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="#111">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="rgba(231,231,231,0.70)">
                 <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.77 1.52V6.74a4.85 4.85 0 01-1-.05z"/>
               </svg>
             </a>

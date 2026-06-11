@@ -1682,7 +1682,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 /* ── Section 2 — Demo AI ── */
 .lp-demo {
-  background: #5C1A08;
   padding: 52px 0 48px;
 }
 .lp-demo__title {
@@ -1766,7 +1765,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 /* ── Section 3 — Booking Form ── */
 .lp-book {
-  background: #f7f5f4;
   padding: 48px 0 56px;
 }
 .lp-book__label {
@@ -1775,18 +1773,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.06em;
-  color: rgba(17,17,17,0.45);
+  color: rgba(231,231,231,0.50);
   text-transform: uppercase;
   margin-bottom: 18px;
 }
 .lp-form__card {
-  background: #fff;
+  background: var(--card);
   border-radius: 18px;
   padding: 22px 18px;
   display: flex;
   flex-direction: column;
   gap: 18px;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
 }
 .lp-form__field {
   display: flex;
@@ -1797,23 +1794,23 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-family: var(--body);
   font-size: 12px;
   font-weight: 600;
-  color: #222;
+  color: var(--text);
 }
 .lp-form__input {
   width: 100%;
   padding: 11px 14px;
   border-radius: 10px;
-  border: 1px solid rgba(17,17,17,0.12);
-  background: #fafafa;
-  color: #111;
+  border: 1px solid rgba(231,231,231,0.12);
+  background: rgba(14,11,11,0.35);
+  color: var(--text);
   font-family: var(--body);
   font-size: 13px;
   outline: none;
   transition: border-color 0.2s;
   -webkit-appearance: none;
 }
-.lp-form__input::placeholder { color: rgba(17,17,17,0.35); }
-.lp-form__input:focus { border-color: rgba(17,17,17,0.28); }
+.lp-form__input::placeholder { color: var(--text-dim); }
+.lp-form__input:focus { border-color: rgba(231,231,231,0.28); }
 
 /* Date wrapper */
 .lp-form__date-wrap { position: relative; }
@@ -1843,9 +1840,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   flex: 1;
   padding: 9px 4px;
   border-radius: 9px;
-  border: 1px solid rgba(17,17,17,0.12);
-  background: #fafafa;
-  color: rgba(17,17,17,0.55);
+  border: 1px solid rgba(231,231,231,0.12);
+  background: rgba(14,11,11,0.30);
+  color: var(--text-mid);
   font-family: var(--body);
   font-size: 12px;
   font-weight: 400;
@@ -1855,8 +1852,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   transition: background 0.18s, color 0.18s, border-color 0.18s;
 }
 .lp-form__time-btn:hover:not(.active) {
-  border-color: rgba(17,17,17,0.22);
-  color: #111;
+  border-color: rgba(231,231,231,0.22);
+  color: var(--text);
 }
 .lp-form__time-btn.active {
   background: var(--orange);
@@ -1884,7 +1881,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   height: 17px;
   flex-shrink: 0;
   border-radius: 4px;
-  border: 1.5px solid rgba(17,17,17,0.22);
+  border: 1.5px solid rgba(231,231,231,0.22);
   background: transparent;
   appearance: none;
   -webkit-appearance: none;
@@ -1905,7 +1902,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .lp-form__check-label {
   font-family: var(--body);
   font-size: 12px;
-  color: rgba(17,17,17,0.60);
+  color: var(--text-mid);
 }
 .lp-form__check-label a {
   color: var(--orange);
@@ -1918,7 +1915,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   width: 100%;
   padding: 15px;
   border-radius: 100px;
-  background: #2A0F07;
+  background: var(--orange);
   color: #fff;
   font-family: var(--body);
   font-size: 15px;
@@ -1951,7 +1948,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 /* ── Footer ── */
 .lp-footer {
-  background: #fff;
   padding: 48px 24px 36px;
   display: flex;
   flex-direction: column;
@@ -1963,7 +1959,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-family: var(--body);
   font-size: 11px;
   font-weight: 400;
-  color: rgba(17,17,17,0.40);
+  color: rgba(231,231,231,0.40);
   margin-top: -4px;
 }
 .lp-footer__social {
@@ -1985,7 +1981,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .lp-footer__copy {
   font-family: var(--body);
   font-size: 11px;
-  color: rgba(17,17,17,0.35);
+  color: rgba(231,231,231,0.35);
   margin-top: 4px;
 }
 
