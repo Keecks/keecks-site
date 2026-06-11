@@ -1550,9 +1550,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .lp {
   font-family: var(--body);
   color: #111;
-  /* Copre il canvas AnimatedBg */
   position: relative;
-  isolation: isolate;
 }
 
 /* Container comune */
@@ -1602,6 +1600,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: fit-content;
   font-family: var(--body);
   font-size: 14px;
   font-weight: 600;
@@ -1611,6 +1610,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
   text-decoration: none;
   transition: opacity 0.2s;
+  white-space: nowrap;
 }
 .lp-btn:hover { opacity: 0.85; }
 .lp-btn--light {
@@ -1660,12 +1660,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .lp-hero {
   background:
     radial-gradient(ellipse 130% 60% at 50% -5%, rgba(200,75,26,0.60) 0%, transparent 58%),
-    radial-gradient(ellipse 70% 35% at 50% 50%, rgba(140,45,10,0.22) 0%, transparent 55%),
-    #0e0b0b;
-  padding: 100px 0 60px;
-  min-height: 100svh;
-  display: flex;
-  align-items: center;
+    radial-gradient(ellipse 70% 35% at 50% 50%, rgba(140,45,10,0.22) 0%, transparent 55%);
+  padding: 74px 0 56px;
 }
 .lp-hero__title {
   font-family: var(--body);
@@ -1748,7 +1744,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   display: flex;
   align-items: center;
   gap: 2px;
-  height: 36px;
+  height: 28px;
   overflow: hidden;
 }
 .lp-player__bar {
@@ -1940,8 +1936,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 /* ── Section 4 — CTA finale ── */
 .lp-cta {
   background:
-    radial-gradient(ellipse 100% 70% at 50% 120%, rgba(200,75,26,0.45) 0%, transparent 60%),
-    #0e0b0b;
+    radial-gradient(ellipse 100% 70% at 50% 120%, rgba(200,75,26,0.45) 0%, transparent 60%);
   padding: 70px 0 80px;
   text-align: center;
 }

@@ -99,7 +99,7 @@ function AudioPlayer() {
           let cls = 'lp-player__bar'
           if (i < playedCount) cls += ' played'
           else if (playing && i === playedCount) cls += ' playing'
-          return <div key={i} className={cls} style={{ height: Math.round(8 + h * 3.2) + 'px' }} />
+          return <div key={i} className={cls} style={{ height: Math.round(4 + h * 1.8) + 'px' }} />
         })}
       </div>
       <span className="lp-player__time">
