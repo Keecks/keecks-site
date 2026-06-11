@@ -213,11 +213,20 @@ function BookForm() {
   )
 }
 
+// ── narrow wrapper (max 480px, centrato) ─────────────────────────────────────
+const inner: React.CSSProperties = {
+  position: 'relative',
+  zIndex: 1,
+  width: '100%',
+  maxWidth: 480,
+  marginInline: 'auto',
+  paddingInline: 24,
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function LandingIT() {
   return (
-    <div className="lp">
-
+    <>
       {/* ── Navbar ── */}
       <nav className="lp-nav">
         <Link href="/it" className="lp-nav__logo" aria-label="Keecks">
@@ -226,11 +235,11 @@ export default function LandingIT() {
         <Link href="/it#how-it-works" className="lp-nav__btn">Come funziona</Link>
       </nav>
 
-      {/* ── Section 1 — Hero ── */}
-      <section className="lp-hero">
+      {/* ── Section 1 — Hero (usa section trasparente del sito: video mostra sotto) ── */}
+      <section className="section" style={{ paddingTop: 74, paddingBottom: 56, paddingInline: 0, position: 'relative' }}>
         <div className="hero__glow" aria-hidden />
-        <div className="lp-container">
-          <span className="lp-tag">Assistente vocale AI</span>
+        <div style={inner}>
+          <span className="tag" style={{ marginBottom: 18 }}>Assistente vocale AI</span>
           <h1 className="lp-hero__title">Quanti clienti chiamano quando non puoi rispondere?</h1>
           <p className="lp-hero__body">
             Keecks risponde a ogni chiamata, prende ogni appuntamento direttamente nel gestionale
@@ -240,9 +249,9 @@ export default function LandingIT() {
         </div>
       </section>
 
-      {/* ── Section 2 — AI Demo ── */}
-      <section className="lp-demo">
-        <div className="lp-container">
+      {/* ── Section 2 — Demo AI (sfondo terracotta solido) ── */}
+      <section className="section" style={{ background: '#5C1A08', paddingTop: 52, paddingBottom: 48, paddingInline: 0 }}>
+        <div style={inner}>
           <h2 className="lp-demo__title">
             L&apos;assistente AI per il tuo salone di parrucchieri.{' '}
             Risponde e prenota. 24/7.
@@ -256,47 +265,48 @@ export default function LandingIT() {
         </div>
       </section>
 
-      {/* ── Section 3 — Form ── */}
+      {/* ── Section 3 — Form (sfondo bianco) ── */}
       <section className="lp-book" id="prenota">
-        <div className="lp-container">
+        <div style={{ ...inner, position: 'static' }}>
           <span className="lp-book__label">Prenota una Demo</span>
           <BookForm />
         </div>
       </section>
 
-      {/* ── Section 4 — CTA ── */}
-      <section className="lp-cta">
+      {/* ── Section 4 + Footer — usa cta-footer-wrap identico al sito principale ── */}
+      <div className="cta-footer-wrap">
         <div className="cta__glow" aria-hidden />
-        <div className="lp-container">
-          <h2 className="lp-cta__title">
-            Meno chiamate da gestire.<br />
-            Più spazio per respirare.
-          </h2>
-          <Link href="#prenota" className="lp-btn lp-btn--outline">Prenota una Demo</Link>
-        </div>
-      </section>
 
-      {/* ── Footer ── */}
-      <footer className="lp-footer">
-        <Link href="/it" className="lp-footer__logo" aria-label="Keecks">
-          <LogoSvg fill="#111" />
-        </Link>
-        <p className="lp-footer__tagline">More clients. Less thoughts.</p>
-        <nav className="lp-footer__social" aria-label="Social media">
-          <a href="https://www.instagram.com/keecks.ai" aria-label="Instagram" className="lp-footer__social-link">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="#111">
-              <path d="M16 2H8a6 6 0 00-6 6v8a6 6 0 006 6h8a6 6 0 006-6V8a6 6 0 00-6-6zm4 14a4 4 0 01-4 4H8a4 4 0 01-4-4V8a4 4 0 014-4h8a4 4 0 014 4v8zm-8-9a5 5 0 100 10A5 5 0 0012 7zm0 8a3 3 0 110-6 3 3 0 010 6zm5.5-9a1 1 0 100 2 1 1 0 000-2z"/>
-            </svg>
-          </a>
-          <a href="https://www.tiktok.com/@keecks.ai" aria-label="TikTok" className="lp-footer__social-link">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="#111">
-              <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.77 1.52V6.74a4.85 4.85 0 01-1-.05z"/>
-            </svg>
-          </a>
-        </nav>
-        <p className="lp-footer__copy">© {new Date().getFullYear()} Keecks. All rights reserved.</p>
-      </footer>
+        <section className="cta" style={{ paddingTop: 70, paddingBottom: 80, paddingInline: 0 }}>
+          <div style={{ ...inner, textAlign: 'center' }}>
+            <h2 className="lp-cta__title">
+              Meno chiamate da gestire.<br />
+              Più spazio per respirare.
+            </h2>
+            <Link href="#prenota" className="lp-btn lp-btn--outline">Prenota una Demo</Link>
+          </div>
+        </section>
 
-    </div>
+        <footer className="lp-footer">
+          <Link href="/it" className="lp-footer__logo" aria-label="Keecks">
+            <LogoSvg fill="#111" />
+          </Link>
+          <p className="lp-footer__tagline">More clients. Less thoughts.</p>
+          <nav className="lp-footer__social" aria-label="Social media">
+            <a href="https://www.instagram.com/keecks.ai" aria-label="Instagram" className="lp-footer__social-link">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="#111">
+                <path d="M16 2H8a6 6 0 00-6 6v8a6 6 0 006 6h8a6 6 0 006-6V8a6 6 0 00-6-6zm4 14a4 4 0 01-4 4H8a4 4 0 01-4-4V8a4 4 0 014-4h8a4 4 0 014 4v8zm-8-9a5 5 0 100 10A5 5 0 0012 7zm0 8a3 3 0 110-6 3 3 0 010 6zm5.5-9a1 1 0 100 2 1 1 0 000-2z"/>
+              </svg>
+            </a>
+            <a href="https://www.tiktok.com/@keecks.ai" aria-label="TikTok" className="lp-footer__social-link">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="#111">
+                <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.77 1.52V6.74a4.85 4.85 0 01-1-.05z"/>
+              </svg>
+            </a>
+          </nav>
+          <p className="lp-footer__copy">© {new Date().getFullYear()} Keecks. All rights reserved.</p>
+        </footer>
+      </div>
+    </>
   )
 }
