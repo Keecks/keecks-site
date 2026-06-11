@@ -228,6 +228,7 @@ export default function LandingIT() {
 
       {/* ── Section 1 — Hero ── */}
       <section className="lp-hero">
+        <div className="hero__glow" aria-hidden />
         <div className="lp-container">
           <span className="lp-tag">Assistente vocale AI</span>
           <h1 className="lp-hero__title">Quanti clienti chiamano quando non puoi rispondere?</h1>
@@ -265,6 +266,7 @@ export default function LandingIT() {
 
       {/* ── Section 4 — CTA ── */}
       <section className="lp-cta">
+        <div className="cta__glow" aria-hidden />
         <div className="lp-container">
           <h2 className="lp-cta__title">
             Meno chiamate da gestire.<br />

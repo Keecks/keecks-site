@@ -1658,11 +1658,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 /* ── Section 1 — Hero ── */
 .lp-hero {
-  background:
-    radial-gradient(ellipse 130% 60% at 50% -5%, rgba(200,75,26,0.60) 0%, transparent 58%),
-    radial-gradient(ellipse 70% 35% at 50% 50%, rgba(140,45,10,0.22) 0%, transparent 55%);
+  position: relative;
   padding: 74px 0 56px;
 }
+.lp-hero > .lp-container { position: relative; z-index: 1; }
 .lp-hero__title {
   font-family: var(--body);
   font-size: 28px;
@@ -1935,11 +1934,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 /* ── Section 4 — CTA finale ── */
 .lp-cta {
-  background:
-    radial-gradient(ellipse 100% 70% at 50% 120%, rgba(200,75,26,0.45) 0%, transparent 60%);
+  position: relative;
   padding: 70px 0 80px;
   text-align: center;
 }
+.lp-cta > .lp-container { position: relative; z-index: 1; }
 .lp-cta__title {
   font-family: var(--body);
   font-size: 28px;
