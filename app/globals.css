@@ -332,41 +332,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   }
 }
 
-/* Dynamic upper headline — all phrases stacked via CSS grid, GSAP toggles opacity */
-.hero__upper {
-  position: absolute;
-  top: 98px;
-  left: var(--px);
-  right: var(--px);
-  display: grid;
-  justify-items: center;
-  z-index: 4;
-  opacity: 0;                 /* CSS initial state prevents SSR flash */
-  pointer-events: none;
-  will-change: opacity;
-}
-@media (max-width: 899px) {
-  .hero__upper { top: 140px; } /* moved up to reduce overlap with phone */
-}
-@media (min-width: 900px) {
-  .hero__upper { top: 72px; } /* desktop: keep close to navbar */
-}
-.hero__phrase {
-  grid-area: 1 / 1;           /* all phrases share the same cell — only one visible */
-  font-family: var(--body);
-  font-size: clamp(16px, 5vw, 24.53px);
-  font-weight: 600;
-  font-style: normal;
-  line-height: 1.052;         /* 25.8 / 24.53 */
-  letter-spacing: -0.18px;
-  color: var(--text);
-  text-align: center;
-  opacity: 0;
-  will-change: opacity;
-}
-@media (min-width: 900px) {
-  .hero__phrase { font-size: clamp(28px, 2.8vw, 42px); }
-}
+/* Le frasi dinamiche dell'hero sono ora stampate nei fotogrammi (niente overlay CSS). */
 
 /* Fixed lower headline — nascosta */
 .hero__lower {
@@ -949,7 +915,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   width: 44px;
   height: 44px;
   border-radius: var(--r-icon);
-  background: transparent;
+  background: var(--social-bg);     /* quadratino scuro — come da design */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1237,7 +1203,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
   /* Hero */
   .hero__title        { font-size: clamp(80px, 9vw, 130px); }
-  .hero__phrase       { font-size: clamp(32px, 3.2vw, 48px); }
   .hero__always-label { font-size: clamp(13px, 1.1vw, 16px); }
   .hero__always-heading { font-size: clamp(48px, 5vw, 72px); }
   .hero__always-sub   { font-size: clamp(18px, 1.8vw, 24px); }
@@ -1303,6 +1268,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   white-space: nowrap;
 }
 .cookie-banner__link:hover { color: var(--white); }
+/* Azioni (link + Ok) in riga con spazio tra loro */
+.cookie-banner__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 4px;
+}
 /* "Ok" — inline text link, no button border */
 .cookie-banner__ok {
   font-size: 12px;
@@ -1663,11 +1635,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 .lp-hero > .lp-container { position: relative; z-index: 1; }
 .lp-hero__title {
-  font-family: var(--body);
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.3px;
+  font-family: var(--display);         /* Canela Medium — come da design */
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: 0;
   color: var(--white);
   margin-bottom: 16px;
 }
@@ -1685,11 +1657,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   padding: 52px 0 48px;
 }
 .lp-demo__title {
-  font-family: var(--body);
-  font-size: 26px;
-  font-weight: 700;
-  line-height: 1.22;
-  letter-spacing: -0.3px;
+  font-family: var(--display);         /* Canela Medium — come da design */
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.14;
+  letter-spacing: 0;
   color: var(--white);
   margin-bottom: 14px;
 }
@@ -1763,22 +1735,43 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   white-space: nowrap;
 }
 
+/* ── Fascia calda (sezioni 2+3): glow arancione come da design ── */
+.lp-warm {
+  position: relative;
+}
+.lp-warm__glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 135% 55% at 50% 34%, rgba(200, 75, 26, 0.60) 0%, transparent 60%),
+    radial-gradient(ellipse 110% 45% at 50% 62%, rgba(216, 106, 46, 0.34) 0%, transparent 58%);
+}
+
 /* ── Section 3 — Booking Form ── */
 .lp-book {
   padding: 48px 0 56px;
 }
 .lp-book__label {
-  display: block;
+  display: inline-flex;
+  align-items: center;
   font-family: var(--body);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: rgba(231,231,231,0.50);
-  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: rgba(231,231,231,0.85);
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1px solid rgba(231,231,231,0.22);
+  background: rgba(96,26,26,0.14);
   margin-bottom: 18px;
 }
 .lp-form__card {
-  background: var(--card);
+  background: rgba(96, 26, 26, 0.18);
+  border: 1px solid rgba(231, 231, 231, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: 18px;
   padding: 22px 18px;
   display: flex;
@@ -1800,8 +1793,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   width: 100%;
   padding: 11px 14px;
   border-radius: 10px;
-  border: 1px solid rgba(231,231,231,0.12);
-  background: rgba(14,11,11,0.35);
+  border: 1px solid rgba(231,231,231,0.14);
+  background: rgba(231,231,231,0.06);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   color: var(--text);
   font-family: var(--body);
   font-size: 13px;
@@ -1821,7 +1816,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
-  color: rgba(17,17,17,0.35);
+  color: rgba(231,231,231,0.45);
 }
 input[type="date"]::-webkit-calendar-picker-indicator {
   position: absolute;
@@ -1840,8 +1835,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   flex: 1;
   padding: 9px 4px;
   border-radius: 9px;
-  border: 1px solid rgba(231,231,231,0.12);
-  background: rgba(14,11,11,0.30);
+  border: 1px solid rgba(231,231,231,0.14);
+  background: rgba(231,231,231,0.05);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   color: var(--text-mid);
   font-family: var(--body);
   font-size: 12px;
@@ -1860,6 +1857,20 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   border-color: var(--orange);
   color: #fff;
   font-weight: 600;
+}
+.lp-form__time-btn.booked,
+.lp-form__time-btn:disabled {
+  opacity: 0.30;
+  cursor: not-allowed;
+  text-decoration: line-through;
+  pointer-events: none;
+}
+
+/* Messaggio "seleziona una data" prima della scelta */
+.lp-form__hint {
+  font-size: 13px;
+  color: rgba(231, 231, 231, 0.40);
+  margin: 8px 0 0;
 }
 
 /* Two-column row */
@@ -1915,11 +1926,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   width: 100%;
   padding: 15px;
   border-radius: 100px;
-  background: var(--orange);
-  color: #fff;
+  background: #fff;               /* design: pill bianca, testo arancione */
+  color: var(--orange);
   font-family: var(--body);
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
   border: none;
   cursor: pointer;
@@ -1937,11 +1948,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 .lp-cta > .lp-container { position: relative; z-index: 1; }
 .lp-cta__title {
-  font-family: var(--body);
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.3px;
+  font-family: var(--display);         /* Canela Medium — come da design */
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: 0;
   color: var(--white);
   margin-bottom: 36px;
 }
@@ -1971,7 +1982,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: transparent;
+  background: var(--social-bg);     /* quadratino scuro — come da design */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1990,7 +2001,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   .lp-container { max-width: 540px; }
   .lp-hero__title,
   .lp-demo__title,
-  .lp-cta__title { font-size: clamp(28px, 5vw, 44px); }
+  .lp-cta__title { font-size: clamp(32px, 5vw, 54px); line-height: 1.1; }
 }
 @media (min-width: 900px) {
   .lp-hero { min-height: auto; padding: 120px 0 80px; }

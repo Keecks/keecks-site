@@ -2,14 +2,22 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
-const AUDIO_FILES = [
-  '/audio/Keecks_AI-Voice-Assistant_Hair-Beauty-Salon-Hairdresser_English.mp3',
-  '/audio/Keecks_AI-Voice-Assistant_Medical-Center_Dental-Clinic_Botox-Filler_Healthcare_English.mp3',
-  '/audio/Keecks_AI-Voice-Assistant_Restaurant_English.mp3',
-]
+// Audio per lingua — stesso ordine dei TABS: [Salone, Clinica Medica, Ristorante]
+const AUDIO_FILES = {
+  en: [
+    '/audio/Keecks_AI-Voice-Assistant_Hair-Beauty-Salon-Hairdresser_English.mp3',
+    '/audio/Keecks_AI-Voice-Assistant_Medical-Center_Dental-Clinic_Botox-Filler_Healthcare_English.mp3',
+    '/audio/Keecks_AI-Voice-Assistant_Restaurant_English.mp3',
+  ],
+  it: [
+    '/audio/Keecks_Assistente-Vocale-AI_Salone-di-Parrucchieri-Parrucchiere-Hairdresser_Italiano.mp3',
+    '/audio/Keecks_Assistente-Vocale-AI_Clinica-Medica-Centro-Medico-Dottore-Studio-Dentistico-Dentista-Igiene_Italiano.mp3',
+    '/audio/Keecks_Assistente-Vocale-AI_Ristorante-Pizzeria-Ristoranti-Trattoria-Ristorazione_Italiano.mp3',
+  ],
+}
 
 const TABS = {
-  en: ['Hair Salon', 'Medical Center', 'Restaurant'],
+  en: ['Hair Salon', 'Medical Clinic', 'Restaurant'],
   it: ['Salone di parrucchieri', 'Clinica Medica', 'Ristorante'],
 }
 
@@ -49,7 +57,7 @@ export default function VoiceDemo() {
       prev.src = ''
     }
 
-    const audio = new Audio(AUDIO_FILES[active])
+    const audio = new Audio(AUDIO_FILES[lang][active])
     audioRef.current = audio
 
     const onTimeUpdate = () => {
@@ -79,7 +87,7 @@ export default function VoiceDemo() {
       audio.removeEventListener('loadedmetadata', onLoadedMetadata)
       audio.removeEventListener('ended', onEnded)
     }
-  }, [active])
+  }, [active, lang])
 
   const togglePlay = useCallback(() => {
     const audio = audioRef.current

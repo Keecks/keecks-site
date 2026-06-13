@@ -11,16 +11,11 @@ const FRAME_COUNT  = 601   // 0000–0600 (both mobile & desktop share same coun
 const FRAME_FPS    = 30
 const PHASE1_FRAME = Math.round(PHASE1_END * FRAME_FPS)  // 90
 
-// Total duration used to map phrase timestamps to scroll progress
-const ANIM_DURATION = 20  // seconds
-
+// Le frasi che cambiano per fotogramma ("Il tuo cliente sta chiamando…", ecc.)
+// sono ora stampate dentro ai fotogrammi stessi, quindi non vengono più
+// sovrapposte qui. Restano solo il titolo iniziale e l'heading "always on".
 const PHRASES = {
   en: {
-    p1: 'Your client is calling...',
-    p2: 'Keecks replies',
-    p3: 'Keecks speaks with your client',
-    p4: 'Keecks gives recommendations',
-    p5: <>Keecks sets the appointments<br />in your booking system</>,
     lower: 'Every call handled. Every appointment booked. Automatically.',
     alwaysLabel: 'AI Voice Assistants',
     alwaysHeading: <>The AI assistant that<br />handles your calls. 24/7.</>,
@@ -28,11 +23,6 @@ const PHRASES = {
     heroTitle: <>More clients.<br />Less thoughts.</>,
   },
   it: {
-    p1: 'Il tuo cliente sta chiamando...',
-    p2: 'Keecks risponde',
-    p3: 'Keecks parla con il tuo cliente',
-    p4: 'Keecks consiglia',
-    p5: <>Keecks fissa<br />gli appuntamenti<br />direttamente nel tuo gestionale</>,
     lower: 'Ogni chiamata gestita. Ogni appuntamento prenotato. Automaticamente.',
     alwaysLabel: 'Assistente vocale AI',
     alwaysHeading: <>L&apos;assistente AI che risponde al posto tuo. 24/7.</>,
@@ -50,24 +40,18 @@ export default function Hero() {
   const textRef     = useRef<HTMLDivElement>(null)
   const hintRef     = useRef<HTMLDivElement>(null)
   const phoneRef    = useRef<HTMLDivElement>(null)
-  const upperRef    = useRef<HTMLDivElement>(null)
   const lowerRef    = useRef<HTMLDivElement>(null)
-  const p1Ref       = useRef<HTMLSpanElement>(null)
-  const p2Ref       = useRef<HTMLSpanElement>(null)
-  const p3Ref       = useRef<HTMLSpanElement>(null)
-  const p4Ref       = useRef<HTMLSpanElement>(null)
-  const p5Ref       = useRef<HTMLSpanElement>(null)
   const alwaysOnRef = useRef<HTMLDivElement>(null)
 
-  const p2StRef   = useRef<ScrollTrigger | null>(null)
-  const p2TlRef   = useRef<gsap.core.Timeline | null>(null)
+  const frameStRef  = useRef<ScrollTrigger | null>(null)
 
   useLayoutEffect(() => {
     history.scrollRestoration = 'manual'
     window.scrollTo(0, 0)
 
     const isMobile  = window.matchMedia('(max-width: 767px)').matches
-    const frameDir  = isMobile ? '/frames/vertical' : '/frames/horizontal'
+    // I fotogrammi hanno il testo già stampato e variano per lingua + orientamento.
+    const frameDir  = `/frames/${lang}/${isMobile ? 'vertical' : 'horizontal'}`
     // Canvas intrinsic size: vertical=540×960, horizontal=960×540
     const cw = isMobile ? 540 : 960
     const ch = isMobile ? 960 : 540
@@ -100,30 +84,8 @@ export default function Hero() {
     window.addEventListener('wheel',     lockWheel, { passive: false })
     window.addEventListener('touchmove', lockTouch, { passive: false })
 
-    // ── Phrase timeline (shared: atS maps video seconds → scroll progress) ───
-    const atS = (sec: number) =>
-      Math.min(1, Math.max(0, (sec - PHASE1_END) / (ANIM_DURATION - PHASE1_END)))
-
-    function buildPhraseTl() {
-      const tl = gsap.timeline({ paused: true })
-      tl
-        .to(p1Ref.current, { opacity: 0, duration: 0.02 }, atS(3.0))
-        .to(p2Ref.current, { opacity: 1, duration: 0.02 }, atS(3.0))
-        .to(p2Ref.current, { opacity: 0, duration: 0.02 }, atS(6.8))
-        .to(p3Ref.current, { opacity: 1, duration: 0.02 }, atS(7.0))
-        .to(p3Ref.current, { opacity: 0, duration: 0.02 }, atS(10.8))
-        .to(p4Ref.current, { opacity: 1, duration: 0.02 }, atS(11.0))
-        .to(p4Ref.current, { opacity: 0, duration: 0.02 }, atS(14.8))
-        .to(p5Ref.current, { opacity: 1, duration: 0.02 }, atS(15.0))
-        .to({}, { duration: 1e-6 }, 1.0)
-      return tl
-    }
-
     const ctx = gsap.context(() => {
-      const phrases = [p1Ref.current, p2Ref.current, p3Ref.current, p4Ref.current, p5Ref.current]
-      gsap.set(upperRef.current,    { opacity: 0 })
       gsap.set(lowerRef.current,    { opacity: 0 })
-      gsap.set(phrases,             { opacity: 0 })
       gsap.set(phoneRef.current,    { y: '80vh' })
       gsap.set(alwaysOnRef.current, { y: 40, opacity: 0 })
 
@@ -134,11 +96,9 @@ export default function Hero() {
           window.removeEventListener('wheel',     lockWheel)
           window.removeEventListener('touchmove', lockTouch)
           gsap.set(alwaysOnRef.current, { y: 0, opacity: 1 })
-          gsap.set([upperRef.current, p1Ref.current], { opacity: 1 })
 
-          p2TlRef.current = buildPhraseTl()
-
-          p2StRef.current = ScrollTrigger.create({
+          // Phase 2: scrub the remaining frames while the section is pinned.
+          frameStRef.current = ScrollTrigger.create({
             trigger: sectionRef.current,
             start: 'top top',
             end: '+=300%',
@@ -150,7 +110,6 @@ export default function Hero() {
                 PHASE1_FRAME + (FRAME_COUNT - 1 - PHASE1_FRAME) * self.progress
               )
               drawFrame(frameIdx)
-              p2TlRef.current?.progress(self.progress)
             },
           })
         },
@@ -167,20 +126,16 @@ export default function Hero() {
         .to(hintRef.current,     { opacity: 0, duration: 0.6 }, 0.5)
         .to(textRef.current,     { opacity: 0, duration: 1.5, ease: 'power1.in' }, 1.5)
         .to(alwaysOnRef.current, { y: 0, opacity: 1, duration: 0.9, ease: 'power2.out' }, 3.5)
-        .to(upperRef.current,    { opacity: 1, duration: 0.6, ease: 'power2.out' }, 4.2)
-        .to(p1Ref.current,       { opacity: 1, duration: 0.6, ease: 'power2.out' }, 4.4)
 
     }, sectionRef)
 
     return () => {
       window.removeEventListener('wheel',     lockWheel)
       window.removeEventListener('touchmove', lockTouch)
-      p2TlRef.current?.scrollTrigger?.kill()
-      p2TlRef.current?.kill()
-      p2StRef.current?.kill()
+      frameStRef.current?.kill()
       ctx.revert()
     }
-  }, [])
+  }, [lang])
 
   return (
     <section className="hero" ref={sectionRef}>
@@ -194,14 +149,6 @@ export default function Hero() {
         <div className="hero__phone" ref={phoneRef}>
           <canvas ref={canvasRef} className="hero__canvas" />
         </div>
-      </div>
-
-      <div className="hero__upper" ref={upperRef} aria-live="polite">
-        <span ref={p1Ref} className="hero__phrase">{t.p1}</span>
-        <span ref={p2Ref} className="hero__phrase">{t.p2}</span>
-        <span ref={p3Ref} className="hero__phrase">{t.p3}</span>
-        <span ref={p4Ref} className="hero__phrase">{t.p4}</span>
-        <span ref={p5Ref} className="hero__phrase">{t.p5}</span>
       </div>
 
       <div className="hero__lower" ref={lowerRef}>

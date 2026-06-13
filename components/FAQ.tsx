@@ -82,7 +82,7 @@ const FAQ_IT = [
 
 const LABELS = {
   en: { tag: 'FAQ', title: 'Still have questions?' },
-  it: { tag: 'FAQ', title: 'Curiosità ?' },
+  it: { tag: 'FAQ', title: 'Hai ancora domande?' },
 }
 
 export default function FAQ() {

@@ -3,43 +3,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { lp } from '@/lib/langPath'
-
-// ── Slot logic ────────────────────────────────────────────────────────────────
-type SlotGroup = { id: 'lunch' | 'evening' | 'afternoon'; slots: string[] }
-
-function pad(n: number) { return String(n).padStart(2, '0') }
-
-function getTimeSlots(dateStr: string): SlotGroup[] {
-  if (!dateStr) return []
-  const [y, m, d] = dateStr.split('-').map(Number)
-  const dow = new Date(y, m - 1, d).getDay()
-  const isWeekend = dow === 0 || dow === 6
-
-  if (isWeekend) {
-    const slots: string[] = []
-    for (let h = 13; h <= 18; h++) {
-      slots.push(`${pad(h)}:00`)
-      slots.push(`${pad(h)}:30`)
-    }
-    return [{ id: 'afternoon', slots }]
-  } else {
-    const evening: string[] = []
-    for (let h = 18; h <= 21; h++) {
-      evening.push(`${h}:00`)
-      if (h < 21) evening.push(`${h}:30`)
-    }
-    return [
-      { id: 'lunch',   slots: ['12:00', '12:30'] },
-      { id: 'evening', slots: evening },
-    ]
-  }
-}
-
-function getTomorrowISO() {
-  const d = new Date()
-  d.setDate(d.getDate() + 1)
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
-}
+import { getTimeSlots, getTomorrowISO } from '@/lib/slots'
 
 // ── i18n ──────────────────────────────────────────────────────────────────────
 const LABELS = {

@@ -5,8 +5,7 @@ node_modules/
 figma/
 landing page/
 
-# Webp frame sequences — large, not needed at runtime
-public/frames/
+# public/frames/ — INCLUSO nel deploy (necessario per l'animazione hero)
 confronto/
 fotogrammi/
 fotogrammi_ita/

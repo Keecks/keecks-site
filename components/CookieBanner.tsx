@@ -38,7 +38,7 @@ export default function CookieBanner() {
       <p className="cookie-banner__text">{t.text}</p>
       <div className="cookie-banner__actions">
         <a href="/cookies" className="cookie-banner__link">{t.more}</a>
-        <button className="cookie-banner__btn" onClick={accept}>{t.accept}</button>
+        <button className="cookie-banner__ok" onClick={accept}>{t.accept}</button>
       </div>
     </div>
   )

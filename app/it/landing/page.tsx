@@ -1,6 +1,7 @@
 'use client'
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import { getTimeSlots, getTomorrowISO } from '@/lib/slots'
 
 // ── Waveform decorative bars ──────────────────────────────────────────────────
 const BARS = [3,5,8,4,7,6,9,5,3,8,7,4,9,6,5,8,4,7,3,9,6,5,8,4,7,9,5,3,6,8,
@@ -110,16 +111,27 @@ function AudioPlayer() {
 }
 
 // ── Book Form ─────────────────────────────────────────────────────────────────
-const TIME_SLOTS = ['9:00 am', '10:00 am', '11:00 am', '12:00 am']
-
 function BookForm() {
-  const [date,    setDate]    = useState('')
-  const [time,    setTime]    = useState('')
-  const [name,    setName]    = useState('')
-  const [company, setCompany] = useState('')
-  const [email,   setEmail]   = useState('')
-  const [privacy, setPrivacy] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [date,         setDate]         = useState('')
+  const [time,         setTime]         = useState('')
+  const [name,         setName]         = useState('')
+  const [company,      setCompany]      = useState('')
+  const [email,        setEmail]        = useState('')
+  const [privacy,      setPrivacy]      = useState(false)
+  const [loading,      setLoading]      = useState(false)
+  const [bookedSlots,  setBookedSlots]  = useState<string[]>([])
+  const [loadingSlots, setLoadingSlots] = useState(false)
+
+  // Slot già prenotati per la data scelta (stessa API del book page)
+  useEffect(() => {
+    if (!date) { setBookedSlots([]); return }
+    setLoadingSlots(true)
+    fetch(`/api/availability?date=${date}`)
+      .then(r => r.json())
+      .then(d => setBookedSlots(d.booked ?? []))
+      .catch(() => setBookedSlots([]))
+      .finally(() => setLoadingSlots(false))
+  }, [date])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -147,6 +159,7 @@ function BookForm() {
             type="date"
             className="lp-form__input"
             value={date}
+            min={getTomorrowISO()}
             onChange={e => { setDate(e.target.value); setTime('') }}
             required
           />
@@ -159,21 +172,32 @@ function BookForm() {
         </div>
       </div>
 
-      {/* Time slots */}
+      {/* Time slots — appaiono in base al giorno scelto (come il book page) */}
       <div className="lp-form__field">
         <label className="lp-form__label">Orario della consulenza</label>
-        <div className="lp-form__times">
-          {TIME_SLOTS.map(slot => (
-            <button
-              key={slot}
-              type="button"
-              className={`lp-form__time-btn${time === slot ? ' active' : ''}`}
-              onClick={() => setTime(slot)}
-            >
-              {slot}
-            </button>
-          ))}
-        </div>
+        {!date ? (
+          <p className="lp-form__hint">Seleziona una data per vedere gli orari disponibili.</p>
+        ) : loadingSlots ? (
+          <p className="lp-form__hint">…</p>
+        ) : (
+          <div className="lp-form__times">
+            {getTimeSlots(date).flatMap(g => g.slots).map(slot => {
+              const booked = bookedSlots.includes(slot)
+              return (
+                <button
+                  key={slot}
+                  type="button"
+                  className={`lp-form__time-btn${time === slot ? ' active' : ''}${booked ? ' booked' : ''}`}
+                  onClick={() => !booked && setTime(slot)}
+                  disabled={booked}
+                  title={booked ? 'Non disponibile' : undefined}
+                >
+                  {slot}
+                </button>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {/* Name + Company */}
@@ -245,9 +269,15 @@ export default function LandingIT() {
             Keecks risponde a ogni chiamata, prende ogni appuntamento direttamente nel gestionale
             e aumenta lo scontrino medio. Anche quando sei occupato o il tuo salone è chiuso.
           </p>
-          <Link href="#prenota" className="lp-btn lp-btn--light">Prenota una Demo</Link>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Link href="#prenota" className="lp-btn lp-btn--light">Prenota una Demo</Link>
+          </div>
         </div>
       </section>
+
+      {/* ── Sezioni 2+3 su fascia calda arancione (come da design) ── */}
+      <div className="lp-warm">
+        <div className="lp-warm__glow" aria-hidden />
 
       {/* ── Section 2 — Demo AI ── */}
       <section className="section" style={{ paddingTop: 52, paddingBottom: 48, paddingInline: 0 }}>
@@ -257,8 +287,7 @@ export default function LandingIT() {
             Risponde e prenota. 24/7.
           </h2>
           <p className="lp-demo__body">
-            Senti come Keecks gestisce una chiamata per prenotare un appuntamento — naturale,
-            preciso e sempre disponibile.
+            Senti come Keecks gestisce una chiamata per taglio, piega e colore.
           </p>
           <AudioPlayer />
           <Link href="#prenota" className="lp-demo__link">Prenota una Demo</Link>
@@ -272,6 +301,7 @@ export default function LandingIT() {
           <BookForm />
         </div>
       </section>
+      </div>
 
       {/* ── Section 4 + Footer — usa cta-footer-wrap identico al sito principale ── */}
       <div className="cta-footer-wrap">
@@ -284,7 +314,7 @@ export default function LandingIT() {
               Meno chiamate da gestire.<br />
               Più spazio per respirare.
             </h2>
-            <Link href="#prenota" className="lp-btn lp-btn--outline">Prenota una Demo</Link>
+            <Link href="#prenota" className="lp-btn lp-btn--light">Prenota una Demo</Link>
           </div>
         </section>
 
