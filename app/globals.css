@@ -198,13 +198,11 @@ img, video { max-width: 100%; height: auto; display: block; }
 .nav__lang-btn:hover { color: var(--white); }
 .nav__lang-arrow { font-size: 10px; line-height: 1; vertical-align: middle; }
 
-/* Nav sparisce verso l'alto dopo la fine della Phase 2 hero (solo mobile) */
-@media (max-width: 899px) {
-  .nav.gone {
-    transform: translateY(calc(-100% - 90px)); /* scivola fuori schermo in alto */
-    opacity: 0;
-    pointer-events: none;
-  }
+/* Nav si nasconde scrollando verso il basso, riappare scrollando su */
+.nav.gone {
+  transform: translateY(calc(-100% - 90px)); /* scivola fuori schermo in alto */
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* ── Navbar — mobile pill (≤ 899 px) ─────────────────────────── */
@@ -452,7 +450,7 @@ img, video { max-width: 100%; height: auto; display: block; }
 }
 @media (min-width: 900px) {
   .section__title {
-    font-size: clamp(52px, 5.5vw, 80px);
+    font-size: clamp(32px, 3.5vw, 48px);
     margin-bottom: 40px;
   }
 }
@@ -468,7 +466,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   margin-bottom: 28px;
 }
 @media (min-width: 900px) {
-  .demo__title { font-size: clamp(40px, 4.5vw, 60px); }
+  .demo__title { font-size: clamp(30px, 3vw, 44px); }
 }
 
 /* ── App Showcase ─────────────────────────────────────────────── */
@@ -860,7 +858,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   margin-bottom: 44px;
 }
 @media (min-width: 900px) {
-  .cta__title { font-size: clamp(48px, 5.5vw, 80px); line-height: 1.1; }
+  .cta__title { font-size: clamp(36px, 3.5vw, 48px); line-height: 1.1; }
 }
 .cta__form {
   position: relative;
@@ -968,6 +966,12 @@ img, video { max-width: 100%; height: auto; display: block; }
   margin-inline: auto;
   padding-inline: var(--px);
   padding-top: 36px;
+}
+@media (min-width: 600px) {
+  .book__inner { max-width: 540px; }
+}
+@media (min-width: 900px) {
+  .book__inner { max-width: 640px; }
 }
 .book__title {
   font-family: var(--display);
@@ -1145,20 +1149,21 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 /* Submit button */
 .book__submit {
   width: 100%;
-  padding: 16px;
-  border-radius: var(--r-pill);
-  background: var(--orange);
-  color: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--orange);
   font-family: var(--body);
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   text-align: center;
   border: none;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: opacity 0.18s;
   margin-top: 4px;
 }
-.book__submit:hover { opacity: 0.88; }
+.book__submit:hover:not(:disabled) { opacity: 0.88; }
+.book__submit:disabled { opacity: 0.45; cursor: not-allowed; }
 
 /* Book page navbar variant */
 .book-nav {
@@ -1169,11 +1174,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: background 0.4s, backdrop-filter 0.4s, transform 0.5s ease, opacity 0.5s ease;
 }
 .book-nav.scrolled {
   background: rgba(14, 11, 11, 0.88);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+}
+/* Si nasconde scrollando verso il basso, riappare scrollando su */
+.book-nav.gone {
+  transform: translateY(calc(-100% - 90px));
+  opacity: 0;
+  pointer-events: none;
 }
 .book-nav__logo { display: flex; align-items: center; gap: 8px; }
 .book-nav__logo svg { height: 19px; width: auto; }  /* desktop: uguale alla home */
@@ -1215,39 +1227,38 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .book-nav__link:hover { opacity: 0.82; }
 
 /* ── Desktop typography scaling (≥ 900px) ────────────────────────
-   Mobile sizes (from Figma 402px) look small on 1440px+ screens.
-   These overrides scale everything up proportionally for desktop.
+   Proportional scaling: desktop sizes feel balanced, not oversized.
    ─────────────────────────────────────────────────────────────── */
 @media (min-width: 900px) {
 
   /* Hero */
-  .hero__title        { font-size: clamp(80px, 9vw, 130px); }
-  .hero__always-label { font-size: clamp(13px, 1.1vw, 16px); }
-  .hero__always-heading { font-size: clamp(48px, 5vw, 72px); }
-  .hero__always-sub   { font-size: clamp(18px, 1.8vw, 24px); }
+  .hero__title        { font-size: clamp(48px, 5vw, 72px); }
+  .hero__always-label { font-size: clamp(12px, 1vw, 14px); }
+  .hero__always-heading { font-size: clamp(32px, 3.5vw, 48px); }
+  .hero__always-sub   { font-size: clamp(16px, 1.4vw, 20px); }
 
   /* Voice Demo */
-  .demo__title        { font-size: clamp(52px, 5.5vw, 80px); }
-  .demo__tab          { font-size: clamp(14px, 1.3vw, 18px); padding: 11px 24px; }
+  .demo__title        { font-size: clamp(30px, 3vw, 44px); }
+  .demo__tab          { font-size: clamp(13px, 1.1vw, 16px); padding: 10px 22px; }
 
   /* How It Works */
-  .step__title        { font-size: clamp(20px, 1.8vw, 24px); }
-  .step__desc         { font-size: clamp(15px, 1.4vw, 18px); }
-  .step__num          { font-size: clamp(12px, 1.1vw, 15px); }
+  .step__title        { font-size: clamp(18px, 1.5vw, 22px); }
+  .step__desc         { font-size: clamp(14px, 1.2vw, 16px); }
+  .step__num          { font-size: clamp(11px, 0.9vw, 13px); }
 
   /* Who We Are */
-  .who__card-title    { font-size: clamp(22px, 2vw, 28px); }
-  .who__card-desc     { font-size: clamp(15px, 1.4vw, 18px); }
+  .who__card-title    { font-size: clamp(20px, 1.7vw, 24px); }
+  .who__card-desc     { font-size: clamp(14px, 1.2vw, 16px); }
 
   /* FAQ */
-  .faq__question      { font-size: clamp(15px, 1.4vw, 18px); }
-  .faq__answer p      { font-size: clamp(14px, 1.3vw, 17px); }
+  .faq__question      { font-size: clamp(14px, 1.2vw, 16px); }
+  .faq__answer p      { font-size: clamp(13px, 1.1vw, 15px); }
 
   /* Section tag pill */
-  .tag                { font-size: clamp(11px, 1vw, 13px); }
+  .tag                { font-size: clamp(10px, 0.9vw, 12px); }
 
-  /* Section padding bigger on desktop */
-  .section            { padding: clamp(80px, 9vw, 130px) var(--px); }
+  /* Section padding */
+  .section            { padding: clamp(60px, 6vw, 90px) var(--px); }
 }
 
 /* ── Cookie Banner ────────────────────────────────────────────── */
@@ -1546,6 +1557,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 /* Container comune */
 .lp-container {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 480px;
   margin-inline: auto;
@@ -1565,6 +1578,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   justify-content: space-between;
   padding: 0 12px;
   border-radius: 100px;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+/* Si nasconde scrollando verso il basso, riappare scrollando su */
+.lp-nav.gone {
+  transform: translateY(calc(-100% - 90px));
+  opacity: 0;
+  pointer-events: none;
 }
 .lp-nav__logo svg { height: 19px; width: auto; }
 .lp-nav__btn {
@@ -1596,7 +1616,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-size: 14px;
   font-weight: 600;
   padding: 13px 28px;
-  border-radius: 100px;
+  border-radius: 12px;
   border: none;
   cursor: pointer;
   text-decoration: none;
@@ -1946,7 +1966,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .lp-form__submit {
   width: 100%;
   padding: 15px;
-  border-radius: 100px;
+  border-radius: 12px;
   background: #fff;               /* design: pill bianca, testo arancione */
   color: var(--orange);
   font-family: var(--body);
@@ -2022,9 +2042,20 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   .lp-container { max-width: 540px; }
   .lp-hero__title,
   .lp-demo__title,
-  .lp-cta__title { font-size: clamp(32px, 5vw, 54px); line-height: 1.1; }
+  .lp-cta__title { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; }
+  .lp-hero__body,
+  .lp-demo__body { font-size: 14px; }
 }
 @media (min-width: 900px) {
   .lp-hero { min-height: auto; padding: 120px 0 80px; }
-  .lp-container { max-width: 640px; }
+  .lp-container { max-width: 700px; }
+  .lp-hero__title,
+  .lp-demo__title,
+  .lp-cta__title { font-size: clamp(32px, 3.5vw, 46px); line-height: 1.12; }
+  .lp-hero__body,
+  .lp-demo__body { font-size: 15px; }
+  .lp-form__card { padding: 28px 24px; }
+  .lp-form__input { padding: 13px 16px; font-size: 14px; }
+  .lp-form__submit { padding: 16px; font-size: 16px; }
+  .lp-btn { font-size: 15px; padding: 14px 32px; }
 }

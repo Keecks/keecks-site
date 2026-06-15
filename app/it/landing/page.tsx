@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { getTimeSlots, getTomorrowISO } from '@/lib/slots'
+import { useHideOnScroll } from '@/lib/useHideOnScroll'
 
 // ── Waveform decorative bars ──────────────────────────────────────────────────
 const BARS = [3,5,8,4,7,6,9,5,3,8,7,4,9,6,5,8,4,7,3,9,6,5,8,4,7,9,5,3,6,8,
@@ -237,22 +238,14 @@ function BookForm() {
   )
 }
 
-// ── narrow wrapper (max 480px, centrato) ─────────────────────────────────────
-const inner: React.CSSProperties = {
-  position: 'relative',
-  zIndex: 1,
-  width: '100%',
-  maxWidth: 480,
-  marginInline: 'auto',
-  paddingInline: 24,
-}
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function LandingIT() {
+  const { hidden } = useHideOnScroll()
   return (
     <>
       {/* ── Navbar ── */}
-      <nav className="lp-nav">
+      <nav className={`lp-nav${hidden ? ' gone' : ''}`}>
         <Link href="/it" className="lp-nav__logo" aria-label="Keecks">
           <LogoSvg />
         </Link>
@@ -262,7 +255,7 @@ export default function LandingIT() {
       {/* ── Section 1 — Hero (usa section trasparente del sito: video mostra sotto) ── */}
       <section className="section" style={{ paddingTop: 74, paddingBottom: 56, paddingInline: 0, position: 'relative' }}>
         <div className="hero__glow" aria-hidden />
-        <div style={inner}>
+        <div className="lp-container">
           <span className="tag" style={{ marginBottom: 18 }}>Assistente vocale AI</span>
           <h1 className="lp-hero__title">Quanti clienti chiamano quando non puoi rispondere?</h1>
           <p className="lp-hero__body">
@@ -281,7 +274,7 @@ export default function LandingIT() {
 
       {/* ── Section 2 — Demo AI ── */}
       <section className="section" style={{ paddingTop: 52, paddingBottom: 48, paddingInline: 0 }}>
-        <div style={inner}>
+        <div className="lp-container">
           <h2 className="lp-demo__title">
             L&apos;assistente AI per il tuo salone di parrucchieri.{' '}
             Risponde e prenota. 24/7.
@@ -295,7 +288,7 @@ export default function LandingIT() {
 
       {/* ── Section 3 — Form ── */}
       <section className="lp-book" id="prenota">
-        <div style={inner}>
+        <div className="lp-container">
           <span className="lp-book__label">Prenota una Demo</span>
           <BookForm />
         </div>
@@ -307,7 +300,7 @@ export default function LandingIT() {
         <div className="cta__glow" aria-hidden />
 
         <section className="section cta" style={{ paddingTop: 70, paddingBottom: 80, paddingInline: 0 }}>
-          <div style={{ ...inner, textAlign: 'center' }}>
+          <div className="lp-container" style={{ textAlign: 'center' }}>
             <h2 className="lp-cta__title">
               Meno chiamate da gestire.<br />
               Più spazio per respirare.

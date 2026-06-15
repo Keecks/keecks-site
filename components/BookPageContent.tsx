@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { lp } from '@/lib/langPath'
 import { getTimeSlots, getTomorrowISO } from '@/lib/slots'
+import { useHideOnScroll } from '@/lib/useHideOnScroll'
 
 // ── i18n ──────────────────────────────────────────────────────────────────────
 const LABELS = {
@@ -56,7 +57,7 @@ function BookForm() {
   const t              = LABELS[lang]
   const router         = useRouter()
 
-  const [scrolled,     setScrolled]     = useState(false)
+  const { scrolled, hidden }            = useHideOnScroll()
   const [date,         setDate]         = useState('')
   const [time,         setTime]         = useState('')
   const [name,         setName]         = useState('')
@@ -66,13 +67,6 @@ function BookForm() {
   const [loading,      setLoading]      = useState(false)
   const [bookedSlots,  setBookedSlots]  = useState<string[]>([])
   const [loadingSlots, setLoadingSlots] = useState(false)
-
-  // Scroll listener for book-nav background
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
 
   const slotGroups = getTimeSlots(date)
 
@@ -116,7 +110,7 @@ function BookForm() {
   return (
     <>
       {/* Navbar */}
-      <nav className={`book-nav${scrolled ? ' scrolled' : ''}`}>
+      <nav className={`book-nav${scrolled ? ' scrolled' : ''}${hidden ? ' gone' : ''}`}>
         <a href={lp(lang, '/')} className="book-nav__logo" aria-label="Back to Keecks">
           {LOGO_SVG}
         </a>
