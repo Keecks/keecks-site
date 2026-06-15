@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import AnimatedBg from '@/components/AnimatedBg'
 import CookieBanner from '@/components/CookieBanner'
+import MetaPixel from '@/components/MetaPixel'
 import { LanguageProvider } from '@/contexts/LanguageContext'
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <LanguageProvider>
             {children}
             <CookieBanner />
+            <MetaPixel />
           </LanguageProvider>
         </div>
       </body>
