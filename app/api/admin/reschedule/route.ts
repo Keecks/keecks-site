@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Gianmarco — Keecks <noreply@keecks.ai>',
+      from: 'Gianmarco — Keecks <info@keecks.ai>',
       to: [email],
       subject: 'Proposta nuova data per la nostra consulenza',
       html: rescheduleEmailHtml(nome, new_date, new_time),

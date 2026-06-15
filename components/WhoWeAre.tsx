@@ -42,7 +42,7 @@ export default function WhoWeAre() {
   const c = CONTENT[lang]
 
   return (
-    <section className="section">
+    <section className="section section--steps">
       <div className="container">
         <div className="section__header">
           <span className="tag section__tag">{c.tag}</span>

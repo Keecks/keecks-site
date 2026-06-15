@@ -61,3 +61,4 @@ ss-static.png
 # Commercial font source files — keep only woff2 for web deployment
 /public/fonts/*.otf
 /public/fonts/*.ttf
+.env*

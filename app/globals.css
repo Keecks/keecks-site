@@ -115,7 +115,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   font-family: var(--body);
   font-size: 10px;
   font-weight: 500;
-  color: var(--text-mid);
+  color: #fff;                    /* Figma: testo chip bianco pieno */
   letter-spacing: 0.02em;
 }
 .tag::before {
@@ -393,7 +393,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   font-weight: 500;                    /* Helvetica Neue Medium */
   line-height: 1.5;                    /* 150% */
   letter-spacing: -0.01em;            /* -1% */
-  color: var(--text-dim);
+  color: #fff;                         /* Figma: testo chip bianco (come How It Works) */
   margin-bottom: 10px;
 }
 .hero__always-heading {
@@ -425,6 +425,13 @@ img, video { max-width: 100%; height: auto; display: block; }
 }
 .section__header {
   margin-bottom: 36px;
+}
+/* How It Works / Who We Are: le card NON sfondano a sinistra — il loro bordo
+   sinistro resta allineato all'header (chip + titolo), come nel Figma. */
+.section--steps .steps,
+.section--steps .who__cards {
+  margin-inline: 0;
+  padding-inline: 0;
 }
 .section__tag {
   display: inline-flex;
@@ -613,7 +620,8 @@ img, video { max-width: 100%; height: auto; display: block; }
   scroll-snap-align: start;
   background: var(--card);
   border-radius: var(--r-card);
-  padding: 20px 24px;
+  padding: 12px 12px 17px;                 /* Figma Section3: pt12 / px12 / pb17 */
+  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.10);  /* Figma: glow interno */
   display: flex;
   flex-direction: column;
 }
@@ -634,7 +642,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   }
 }
 .step__num {
-  font-size: 12px;
+  font-size: 11px;                   /* Figma Section3: 11.045px */
   font-weight: 500;
   color: var(--orange);
   letter-spacing: 0.06em;
@@ -664,7 +672,16 @@ img, video { max-width: 100%; height: auto; display: block; }
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 120px;         /* zona illustrazione coerente tra le card */
 }
+.step__svg {
+  display: block;
+  margin: 0 auto;
+  overflow: visible;         /* non taglia il glow del nodo attivo */
+}
+.step__svg--linear { width: 100%; }            /* 3 cerchi edge-to-edge */
+.step__svg--hub    { height: 100px; width: auto; }
+.step__svg--pulse  { height: 116px; width: auto; }
 
 /* ── FAQ ──────────────────────────────────────────────────────── */
 .faq-section .section__header {
