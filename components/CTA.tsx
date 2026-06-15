@@ -30,7 +30,6 @@ export default function CTA() {
 
   return (
     <section className="section cta" id="waitlist">
-      <div className="cta__glow" aria-hidden />
       <div className="container">
         <h2 className="cta__title">{t.title}</h2>
         <form className="cta__form" onSubmit={handleSubmit}>
