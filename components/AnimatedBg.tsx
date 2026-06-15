@@ -29,12 +29,6 @@ export default function AnimatedBg() {
       >
         <source src="/bg.mp4" type="video/mp4" />
       </video>
-
-      {/* Dark overlay — increase opacity to darken, decrease to brighten */}
-      <div
-        aria-hidden="true"
-        style={{ ...fixed, zIndex: 0, background: 'rgba(0,0,0,0.45)' }}
-      />
     </>
   )
 }

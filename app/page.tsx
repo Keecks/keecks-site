@@ -17,9 +17,12 @@ export default function Home() {
         <HowItWorks />
         <WhoWeAre />
         <FAQ />
-        <CTA />
+        <div className="cta-footer-wrap">
+          <div className="cta__glow" aria-hidden />
+          <CTA />
+          <Footer />
+        </div>
       </main>
-      <Footer />
     </>
   )
 }

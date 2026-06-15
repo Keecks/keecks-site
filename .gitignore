@@ -27,10 +27,13 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Design files & private assets — local only
+# Design files & private assets — local only (too large for git)
 /figma/
 /confronto/
 /fotogrammi/
+/fotogrammi_ita/
+/nuovi_fotogrammi/
+/post_deploy/
 /scripts/
 /details/
 /to_add/
