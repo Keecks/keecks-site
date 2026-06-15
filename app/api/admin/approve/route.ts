@@ -9,7 +9,7 @@ const ADMIN_APPROVE_SECRET = process.env.ADMIN_APPROVE_SECRET!
 const GIANMARCO_EMAIL      = process.env.GIANMARCO_EMAIL!
 
 // ── Token helpers ──────────────────────────────────────────────────
-export function signToken(bookingId: string | number): string {
+function signToken(bookingId: string | number): string {
   return crypto
     .createHmac('sha256', ADMIN_APPROVE_SECRET)
     .update(String(bookingId))
