@@ -290,7 +290,6 @@ export default function LandingIT() {
             Senti come Keecks gestisce una chiamata per taglio, piega e colore.
           </p>
           <AudioPlayer />
-          <Link href="#prenota" className="lp-demo__link">Prenota una Demo</Link>
         </div>
       </section>
 

@@ -2,6 +2,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { getTomorrowISO } from '@/lib/slots'
 
 // ── Slot logic ────────────────────────────────────────────────────────────────
 // Weekdays   → Lunch:   12:00, 12:30
@@ -38,10 +39,6 @@ function getTimeSlots(dateStr: string): SlotGroup[] {
   }
 }
 
-function getTodayISO() {
-  const d = new Date()
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
-}
 
 // ── i18n ──────────────────────────────────────────────────────────────────────
 const LABELS = {
@@ -178,7 +175,7 @@ function BookForm() {
                 type="date"
                 className="book__input"
                 value={date}
-                min={getTodayISO()}
+                min={getTomorrowISO()}
                 onChange={e => handleDateChange(e.target.value)}
                 required
               />

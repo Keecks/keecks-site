@@ -63,6 +63,15 @@ export async function POST(req: NextRequest) {
   try {
     const { nome, company, email, date, time, lang } = await req.json()
 
+    // ── 0. Reject same-day and past dates ──────────────────────────
+    // Le date sono ISO "YYYY-MM-DD" → confronto lessicografico valido.
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const now = new Date()
+    const todayISO = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+    if (!date || date <= todayISO) {
+      return NextResponse.json({ error: 'Invalid date' }, { status: 400 })
+    }
+
     // ── 1. Save to Supabase ────────────────────────────────────────
     const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/FormSito`, {
       method: 'POST',
