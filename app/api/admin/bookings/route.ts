@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const SUPABASE_URL        = process.env.SUPABASE_URL!
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY!
-const ADMIN_PASSWORD      = process.env.ADMIN_PASSWORD!
+const clean = (s: string) => s.replace(/^\uFEFF/, '').trim()
+
+const SUPABASE_URL        = clean(process.env.SUPABASE_URL!)
+const SUPABASE_SERVICE_KEY = clean(process.env.SUPABASE_SERVICE_KEY!)
+const ADMIN_PASSWORD      = clean(process.env.ADMIN_PASSWORD!)
 
 export async function GET(req: NextRequest) {
   const pwd = req.nextUrl.searchParams.get('pwd')

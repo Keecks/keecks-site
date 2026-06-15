@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { getCalendarClient } from '@/lib/google-calendar'
 
-const SUPABASE_URL         = process.env.SUPABASE_URL!
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY!
-const RESEND_API_KEY       = process.env.RESEND_API_KEY!
-const ADMIN_APPROVE_SECRET = process.env.ADMIN_APPROVE_SECRET!
-const GIANMARCO_EMAIL      = process.env.GIANMARCO_EMAIL!
+const clean = (s: string) => s.replace(/^\uFEFF/, '').trim()
+
+const SUPABASE_URL         = clean(process.env.SUPABASE_URL!)
+const SUPABASE_SERVICE_KEY = clean(process.env.SUPABASE_SERVICE_KEY!)
+const RESEND_API_KEY       = clean(process.env.RESEND_API_KEY!)
+const ADMIN_APPROVE_SECRET = clean(process.env.ADMIN_APPROVE_SECRET!)
+const GIANMARCO_EMAIL      = clean(process.env.GIANMARCO_EMAIL!)
 
 // ── Token helpers ──────────────────────────────────────────────────
 function signToken(bookingId: string | number): string {
