@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createConfirmedEvent, deleteBookingEvents } from '@/lib/google-calendar'
+import { createConfirmedEvent, deleteBookingEvents, addToCalendarLink } from '@/lib/google-calendar'
 import { verifyToken } from '@/lib/adminToken'
 
 const clean = (s: string) => s.replace(/^\uFEFF/, '').trim()
@@ -140,8 +140,7 @@ export async function GET(req: NextRequest) {
 
   // 2. Upgrade the tentative hold to a confirmed event with Meet link.
   //    Remove the hold first so we don't end up with two events.
-  let meetLink:  string | undefined
-  let eventLink: string | undefined
+  let meetLink: string | undefined
   try {
     await deleteBookingEvents(id)
     const created = await createConfirmedEvent({
@@ -152,12 +151,20 @@ export async function GET(req: NextRequest) {
       date: booking.consultation_date,
       time: booking.consultation_time,
     })
-    meetLink  = created.meetLink
-    eventLink = created.eventLink
-    console.log('Calendar event confirmed via email approve:', eventLink)
+    meetLink = created.meetLink
+    console.log('Calendar event confirmed via email approve, meet:', meetLink)
   } catch (err) {
     console.error('Google Calendar error (email approve):', err)
   }
+
+  // Add-to-calendar link is built from booking data, so it's always present
+  // even if the Google Calendar call above failed (Meet link may be missing).
+  const eventLink = addToCalendarLink({
+    company,
+    date: booking.consultation_date,
+    time: booking.consultation_time,
+    meetLink,
+  })
 
   // 3. Send Email 2 to client
   const emailRes = await fetch('https://api.resend.com/emails', {

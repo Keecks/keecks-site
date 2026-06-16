@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createConfirmedEvent, deleteBookingEvents } from '@/lib/google-calendar'
+import { createConfirmedEvent, deleteBookingEvents, addToCalendarLink } from '@/lib/google-calendar'
 
 const clean = (s: string) => s.replace(/^﻿/, '').trim()
 
@@ -82,20 +82,24 @@ export async function POST(req: NextRequest) {
   const company = company_name?.trim() || undefined
 
   // ── 1. Upgrade the tentative hold to a confirmed event with Meet link ──
-  let meetLink:  string | undefined
-  let eventLink: string | undefined
+  let meetLink: string | undefined
   try {
     await deleteBookingEvents(id)
     const created = await createConfirmedEvent({
       bookingId: id, nome, company, email,
       date: consultation_date, time: consultation_time,
     })
-    meetLink  = created.meetLink
-    eventLink = created.eventLink
+    meetLink = created.meetLink
   } catch (err) {
     // Don't block confirmation if Calendar fails — log and continue
     console.error('Google Calendar error:', err)
   }
+
+  // Add-to-calendar link is built from booking data, so it's always present
+  // even if the Google Calendar call above failed (Meet link may be missing).
+  const eventLink = addToCalendarLink({
+    company, date: consultation_date, time: consultation_time, meetLink,
+  })
 
   // ── 2. Send Email 2 to user (with Meet + calendar links if available) ──
   const emailRes = await fetch('https://api.resend.com/emails', {
