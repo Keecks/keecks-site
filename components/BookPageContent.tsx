@@ -5,6 +5,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { lp } from '@/lib/langPath'
 import { getTimeSlots, getTomorrowISO } from '@/lib/slots'
 import { useHideOnScroll } from '@/lib/useHideOnScroll'
+import { trackEvent, trackCustomEvent } from '@/components/MetaPixel'
 
 // ── i18n ──────────────────────────────────────────────────────────────────────
 const LABELS = {
@@ -68,6 +69,25 @@ function BookForm() {
   const [bookedSlots,  setBookedSlots]  = useState<string[]>([])
   const [loadingSlots, setLoadingSlots] = useState(false)
 
+  // Tracking states to ensure events fire only once
+  const [hasTrackedStart, setHasTrackedStart] = useState(false)
+  const [hasTrackedComplete, setHasTrackedComplete] = useState(false)
+
+  // Track FormComplete when all required fields are filled
+  useEffect(() => {
+    if (name && email && date && time && privacy && !hasTrackedComplete) {
+      setHasTrackedComplete(true)
+      trackCustomEvent('FormComplete')
+    }
+  }, [name, email, date, time, privacy, hasTrackedComplete])
+
+  const handleFormInteraction = () => {
+    if (!hasTrackedStart) {
+      setHasTrackedStart(true)
+      trackCustomEvent('FormStart')
+      trackCustomEvent('FormClick') // Often happens at the same time
+    }
+  }
   const slotGroups = getTimeSlots(date)
 
   useEffect(() => {
@@ -88,6 +108,10 @@ function BookForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!time) return
+    
+    // Track form submission
+    trackEvent('SubmitApplication')
+    
     setLoading(true)
     let success = false
     try {
@@ -124,7 +148,7 @@ function BookForm() {
         <h1 className="book__title">{t.title}</h1>
         <p className="book__subtitle">{t.subtitle}</p>
 
-        <form className="book__card" onSubmit={handleSubmit}>
+        <form className="book__card" onSubmit={handleSubmit} onClick={handleFormInteraction} onFocus={handleFormInteraction}>
 
           {/* Date */}
           <div className="book__field">

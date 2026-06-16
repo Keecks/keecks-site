@@ -1,6 +1,7 @@
 'use client'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import { trackEvent, trackCustomEvent } from '@/components/MetaPixel'
 import { getTimeSlots, getTomorrowISO } from '@/lib/slots'
 import { useHideOnScroll } from '@/lib/useHideOnScroll'
 
@@ -123,6 +124,24 @@ function BookForm() {
   const [bookedSlots,  setBookedSlots]  = useState<string[]>([])
   const [loadingSlots, setLoadingSlots] = useState(false)
 
+  const [hasTrackedStart, setHasTrackedStart] = useState(false)
+  const [hasTrackedComplete, setHasTrackedComplete] = useState(false)
+
+  useEffect(() => {
+    if (name && email && date && time && privacy && !hasTrackedComplete) {
+      setHasTrackedComplete(true)
+      trackCustomEvent('FormComplete')
+    }
+  }, [name, email, date, time, privacy, hasTrackedComplete])
+
+  const handleFormInteraction = () => {
+    if (!hasTrackedStart) {
+      setHasTrackedStart(true)
+      trackCustomEvent('FormStart')
+      trackCustomEvent('FormClick')
+    }
+  }
+
   // Slot già prenotati per la data scelta (stessa API del book page)
   useEffect(() => {
     if (!date) { setBookedSlots([]); return }
@@ -137,6 +156,7 @@ function BookForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!time) return
+    trackEvent('SubmitApplication')
     setLoading(true)
     try {
       await fetch('/api/book', {
@@ -151,7 +171,7 @@ function BookForm() {
   }
 
   return (
-    <form className="lp-form__card" onSubmit={handleSubmit}>
+    <form className="lp-form__card" onSubmit={handleSubmit} onClick={handleFormInteraction} onFocus={handleFormInteraction}>
       {/* Date */}
       <div className="lp-form__field">
         <label className="lp-form__label">Data della consulenza</label>

@@ -18,9 +18,16 @@ const LOGO_SVG = (
   </svg>
 )
 
+import { useEffect } from 'react'
+import { trackEvent } from '@/components/MetaPixel'
+
 export default function ConfirmedPage() {
   const { lang } = useLanguage()
   const t = LABELS[lang]
+
+  useEffect(() => {
+    trackEvent('Lead')
+  }, [])
 
   return (
     <main className="confirmed">
