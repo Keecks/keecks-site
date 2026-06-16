@@ -1,19 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createConfirmedEvent, deleteBookingEvents } from '@/lib/google-calendar'
+import { verifyToken } from '@/lib/adminToken'
 
-const clean = (s: string) => s.replace(/^﻿/, '').trim()
+const clean = (s: string) => s.replace(/^\uFEFF/, '').trim()
 
 const SUPABASE_URL         = clean(process.env.SUPABASE_URL!)
 const SUPABASE_SERVICE_KEY = clean(process.env.SUPABASE_SERVICE_KEY!)
 const RESEND_API_KEY       = clean(process.env.RESEND_API_KEY!)
-const ADMIN_PASSWORD       = clean(process.env.ADMIN_PASSWORD!)
 
-function formatDate(d: string): string {
+// ── Helpers ────────────────────────────────────────────────────────
+function formatDate(d: string) {
   const [y, m, day] = d.split('-')
   return `${day}/${m}/${y}`
 }
 
-function formatTime(t: string): string {
+function formatTime(t: string) {
   return t.slice(0, 5)
 }
 
@@ -72,32 +73,93 @@ function confirmEmailHtml(nome: string, date: string, time: string, meetLink?: s
 </html>`
 }
 
-export async function POST(req: NextRequest) {
-  const { id, pwd, nome, email, company_name, consultation_date, consultation_time } = await req.json()
+// ── GET handler ────────────────────────────────────────────────────
+export async function GET(req: NextRequest) {
+  const { searchParams } = req.nextUrl
+  const id     = searchParams.get('id')
+  const token  = searchParams.get('token')
+  const action = searchParams.get('action') // 'accept' or 'reject'
 
-  if (pwd !== ADMIN_PASSWORD) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!id || !token || !action) {
+    return NextResponse.redirect(new URL('/admin/approve?result=invalid', req.url))
   }
 
-  const company = company_name?.trim() || undefined
+  // Verify HMAC
+  try {
+    if (!verifyToken(id, token)) {
+      return NextResponse.redirect(new URL('/admin/approve?result=invalid', req.url))
+    }
+  } catch {
+    return NextResponse.redirect(new URL('/admin/approve?result=invalid', req.url))
+  }
 
-  // ── 1. Upgrade the tentative hold to a confirmed event with Meet link ──
+  // ── REJECT ───────────────────────────────────────────────────────
+  if (action === 'reject') {
+    // Remove the booking so its slot frees up again on the site…
+    await fetch(`${SUPABASE_URL}/rest/v1/FormSito?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: {
+        'apikey': SUPABASE_SERVICE_KEY,
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+      },
+    })
+    // …and drop the tentative hold event from the calendar
+    await deleteBookingEvents(id)
+    return NextResponse.redirect(new URL('/admin/approve?result=rejected', req.url))
+  }
+
+  // ── ACCEPT ──────────────────────────────────────────────────────
+  // 1. Fetch booking data from Supabase
+  const bookingRes = await fetch(
+    `${SUPABASE_URL}/rest/v1/FormSito?id=eq.${id}&select=*`,
+    {
+      headers: {
+        'apikey': SUPABASE_SERVICE_KEY,
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+      },
+    }
+  )
+
+  if (!bookingRes.ok) {
+    return NextResponse.redirect(new URL('/admin/approve?result=error', req.url))
+  }
+
+  const bookings = await bookingRes.json()
+  if (!bookings.length) {
+    return NextResponse.redirect(new URL('/admin/approve?result=not_found', req.url))
+  }
+
+  const booking = bookings[0]
+
+  // Already confirmed?
+  if (booking.confirmed) {
+    return NextResponse.redirect(new URL('/admin/approve?result=already', req.url))
+  }
+
+  const company = booking.company_name?.trim() || undefined
+
+  // 2. Upgrade the tentative hold to a confirmed event with Meet link.
+  //    Remove the hold first so we don't end up with two events.
   let meetLink:  string | undefined
   let eventLink: string | undefined
   try {
     await deleteBookingEvents(id)
     const created = await createConfirmedEvent({
-      bookingId: id, nome, company, email,
-      date: consultation_date, time: consultation_time,
+      bookingId: id,
+      nome: booking.nome,
+      company,
+      email: booking.email,
+      date: booking.consultation_date,
+      time: booking.consultation_time,
     })
     meetLink  = created.meetLink
     eventLink = created.eventLink
+    console.log('Calendar event confirmed via email approve:', eventLink)
   } catch (err) {
-    // Don't block confirmation if Calendar fails — log and continue
-    console.error('Google Calendar error:', err)
+    console.error('Google Calendar error (email approve):', err)
   }
 
-  // ── 2. Send Email 2 to user (with Meet + calendar links if available) ──
+  // 3. Send Email 2 to client
   const emailRes = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -105,20 +167,18 @@ export async function POST(req: NextRequest) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Gianmarco — Keecks <noreply@keecks.ai>',
-      to: [email],
+      from: 'Gianmarco — Keecks <info@keecks.ai>',
+      to: [booking.email],
       subject: 'Appuntamento confermato',
-      html: confirmEmailHtml(nome, consultation_date, consultation_time, meetLink, eventLink),
+      html: confirmEmailHtml(booking.nome, booking.consultation_date, booking.consultation_time, meetLink, eventLink),
     }),
   })
 
   if (!emailRes.ok) {
-    const err = await emailRes.text()
-    console.error('Resend confirm error:', err)
-    return NextResponse.json({ error: 'Email error' }, { status: 500 })
+    console.error('Resend confirm error (email approve):', await emailRes.text())
   }
 
-  // ── 3. Mark confirmed in Supabase ────────────────────────────
+  // 4. Mark confirmed in Supabase
   await fetch(`${SUPABASE_URL}/rest/v1/FormSito?id=eq.${id}`, {
     method: 'PATCH',
     headers: {
@@ -129,5 +189,5 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify({ confirmed: true }),
   })
 
-  return NextResponse.json({ ok: true, meetLink, eventLink })
+  return NextResponse.redirect(new URL('/admin/approve?result=confirmed', req.url))
 }
