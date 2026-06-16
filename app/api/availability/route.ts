@@ -1,7 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCalendarClient } from '@/lib/google-calendar'
 
+const clean = (s?: string) => (s ?? '').replace(/^﻿/, '').trim()
+const SUPABASE_URL         = clean(process.env.SUPABASE_URL)
+const SUPABASE_SERVICE_KEY = clean(process.env.SUPABASE_SERVICE_KEY)
+
 function pad(n: number) { return String(n).padStart(2, '0') }
+
+// Slots taken by bookings in Supabase (pending + confirmed). Rejected bookings
+// are deleted, so every remaining row is an active reservation.
+// A booking lasts 30 min → it blocks exactly its own slot.
+async function getSupabaseBookedSlots(date: string): Promise<string[]> {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) return []
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/FormSito?consultation_date=eq.${date}&select=consultation_time`,
+      { headers: { 'apikey': SUPABASE_SERVICE_KEY, 'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}` } }
+    )
+    if (!res.ok) return []
+    const rows: { consultation_time: string | null }[] = await res.json()
+    return rows
+      .map(r => r.consultation_time?.slice(0, 5))
+      .filter((t): t is string => !!t)
+  } catch (err) {
+    console.error('Supabase availability error:', err)
+    return []
+  }
+}
 
 // Same slot logic as the booking form
 function getAvailableSlots(dateStr: string): string[] {
@@ -41,6 +66,14 @@ export async function GET(req: NextRequest) {
   const date = req.nextUrl.searchParams.get('date')
   if (!date) return NextResponse.json({ booked: [] })
 
+  const slots = getAvailableSlots(date)
+
+  // Source 1 — Supabase bookings (pending + confirmed). Always blocks the slot,
+  // even before the appointment is confirmed, to avoid double-booking.
+  const supabaseBooked = await getSupabaseBookedSlots(date)
+
+  // Source 2 — Google Calendar freebusy (confirmed events + any other busy time).
+  let calendarBooked: string[] = []
   try {
     const calendar = await getCalendarClient()
 
@@ -59,13 +92,8 @@ export async function GET(req: NextRequest) {
 
     const busyIntervals = fbRes.data.calendars?.primary?.busy ?? []
 
-    if (busyIntervals.length === 0) {
-      return NextResponse.json({ booked: [] })
-    }
-
     // Check each available slot against the busy intervals
-    const slots  = getAvailableSlots(date)
-    const booked = slots.filter(slot => {
+    calendarBooked = slots.filter(slot => {
       const [h, m] = slot.split(':').map(Number)
       const slotStart = new Date(`${date}T${pad(h)}:${pad(m)}:00${offsetStr}`)
       const slotEnd   = new Date(slotStart.getTime() + 30 * 60_000)
@@ -77,12 +105,12 @@ export async function GET(req: NextRequest) {
         return slotStart < busyEnd && slotEnd > busyStart
       })
     })
-
-    return NextResponse.json({ booked })
   } catch (err) {
     console.error('Calendar freebusy error:', err)
-    // If Calendar is unreachable (token missing/expired), show all slots as free
-    // rather than blocking everything
-    return NextResponse.json({ booked: [] })
+    // If Calendar is unreachable we still fall back to the Supabase result
   }
+
+  // Union of both sources, restricted to real bookable slots
+  const booked = slots.filter(s => supabaseBooked.includes(s) || calendarBooked.includes(s))
+  return NextResponse.json({ booked })
 }

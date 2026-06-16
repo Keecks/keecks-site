@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCalendarClient } from '@/lib/google-calendar'
+import { createConfirmedEvent, deleteBookingEvents } from '@/lib/google-calendar'
 
-const clean = (s: string) => s.replace(/^\uFEFF/, '').trim()
+const clean = (s: string) => s.replace(/^﻿/, '').trim()
 
 const SUPABASE_URL         = clean(process.env.SUPABASE_URL!)
 const SUPABASE_SERVICE_KEY = clean(process.env.SUPABASE_SERVICE_KEY!)
 const RESEND_API_KEY       = clean(process.env.RESEND_API_KEY!)
 const ADMIN_PASSWORD       = clean(process.env.ADMIN_PASSWORD!)
-const GIANMARCO_EMAIL      = clean(process.env.GIANMARCO_EMAIL!)
 
 function formatDate(d: string): string {
   const [y, m, day] = d.split('-')
@@ -18,24 +17,20 @@ function formatTime(t: string): string {
   return t.slice(0, 5)
 }
 
-// Build ISO datetime strings for the event (1-hour slot)
-function buildEventTimes(date: string, time: string) {
-  const timeShort = time.slice(0, 5)            // "HH:MM"
-  const start = `${date}T${timeShort}:00`       // "YYYY-MM-DDTHH:MM:00"
-  const [h, m] = timeShort.split(':').map(Number)
-  const endH   = String(h + 1).padStart(2, '0')
-  const end    = `${date}T${endH}:${String(m).padStart(2, '0')}:00`
-  return { start, end }
-}
-
-function confirmEmailHtml(nome: string, date: string, time: string, meetLink?: string): string {
+function confirmEmailHtml(nome: string, date: string, time: string, meetLink?: string, eventLink?: string): string {
   const dateIt = formatDate(date)
   const timeIt = formatTime(time)
 
   const meetSection = meetLink ? `
-          <div style="margin:0 0 32px;padding:20px 24px;background:rgba(255,112,5,0.08);border:1px solid rgba(255,112,5,0.25);border-radius:12px;">
-            <p style="margin:0 0 12px;font-size:13px;color:rgba(231,231,231,0.5);text-transform:uppercase;letter-spacing:0.06em;">Link Google Meet</p>
+          <div style="margin:0 0 16px;padding:20px 24px;background:rgba(255,112,5,0.08);border:1px solid rgba(255,112,5,0.25);border-radius:12px;">
+            <p style="margin:0 0 12px;font-size:13px;color:rgba(231,231,231,0.5);text-transform:uppercase;letter-spacing:0.06em;">Link della call (Google Meet)</p>
             <a href="${meetLink}" style="color:#ff7005;font-size:15px;font-weight:600;text-decoration:none;word-break:break-all;">${meetLink}</a>
+          </div>` : ''
+
+  const eventSection = eventLink ? `
+          <div style="margin:0 0 32px;padding:20px 24px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;">
+            <p style="margin:0 0 12px;font-size:13px;color:rgba(231,231,231,0.5);text-transform:uppercase;letter-spacing:0.06em;">Evento sul calendario</p>
+            <a href="${eventLink}" style="color:#e7e7e7;font-size:15px;font-weight:600;text-decoration:none;word-break:break-all;">Aggiungi al tuo calendario</a>
           </div>` : ''
 
   return `<!DOCTYPE html>
@@ -61,6 +56,7 @@ function confirmEmailHtml(nome: string, date: string, time: string, meetLink?: s
             Durante la chiamata, ci prenderemo il tempo per comprendere la tua realtà e capire assieme come Keecks può supportare la tua attività. Avremo l'occasione di provare dal vivo il nostro assistente vocale e affrontare qualsiasi domanda o curiosità.
           </p>
           ${meetSection}
+          ${eventSection}
           <p style="margin:0;font-size:14px;line-height:1.8;color:rgba(231,231,231,0.6);">A presto,<br/>Gianmarco</p>
         </td></tr>
 
@@ -77,57 +73,31 @@ function confirmEmailHtml(nome: string, date: string, time: string, meetLink?: s
 }
 
 export async function POST(req: NextRequest) {
-  const { id, pwd, nome, email, consultation_date, consultation_time } = await req.json()
+  const { id, pwd, nome, email, company_name, consultation_date, consultation_time } = await req.json()
 
   if (pwd !== ADMIN_PASSWORD) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // ── 1. Create Google Calendar event with Meet link ────────────
-  let meetLink: string | undefined
+  const company = company_name?.trim() || undefined
+
+  // ── 1. Upgrade the tentative hold to a confirmed event with Meet link ──
+  let meetLink:  string | undefined
+  let eventLink: string | undefined
   try {
-    const calendar = await getCalendarClient()
-    const { start, end } = buildEventTimes(consultation_date, consultation_time)
-
-    const event = await calendar.events.insert({
-      calendarId: 'primary',
-      conferenceDataVersion: 1,
-      requestBody: {
-        summary: `Consulenza Keecks — ${nome}`,
-        description: `Consulenza commerciale con ${nome} (${email})`,
-        start: { dateTime: start, timeZone: 'Europe/Rome' },
-        end:   { dateTime: end,   timeZone: 'Europe/Rome' },
-        attendees: [
-          { email: GIANMARCO_EMAIL },
-          { email },
-        ],
-        conferenceData: {
-          createRequest: {
-            requestId: `keecks-${id}-${Date.now()}`,
-            conferenceSolutionKey: { type: 'hangoutsMeet' },
-          },
-        },
-        reminders: {
-          useDefault: false,
-          overrides: [
-            { method: 'email',  minutes: 60 },
-            { method: 'popup',  minutes: 15 },
-          ],
-        },
-      },
+    await deleteBookingEvents(id)
+    const created = await createConfirmedEvent({
+      bookingId: id, nome, company, email,
+      date: consultation_date, time: consultation_time,
     })
-
-    meetLink = event.data.conferenceData?.entryPoints?.find(
-      ep => ep.entryPointType === 'video'
-    )?.uri ?? undefined
-
-    console.log('Calendar event created:', event.data.htmlLink)
+    meetLink  = created.meetLink
+    eventLink = created.eventLink
   } catch (err) {
     // Don't block confirmation if Calendar fails — log and continue
     console.error('Google Calendar error:', err)
   }
 
-  // ── 2. Send Email 2 to user (with Meet link if available) ─────
+  // ── 2. Send Email 2 to user (with Meet + calendar links if available) ──
   const emailRes = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -135,10 +105,10 @@ export async function POST(req: NextRequest) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Gianmarco — Keecks <info@keecks.ai>',
+      from: 'Gianmarco — Keecks <noreply@keecks.ai>',
       to: [email],
       subject: 'Appuntamento confermato',
-      html: confirmEmailHtml(nome, consultation_date, consultation_time, meetLink),
+      html: confirmEmailHtml(nome, consultation_date, consultation_time, meetLink, eventLink),
     }),
   })
 
@@ -159,5 +129,5 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify({ confirmed: true }),
   })
 
-  return NextResponse.json({ ok: true, meetLink })
+  return NextResponse.json({ ok: true, meetLink, eventLink })
 }

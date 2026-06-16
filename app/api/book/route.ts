@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import crypto from 'crypto'
+import { createHoldEvent } from '@/lib/google-calendar'
+import { signToken, getBaseUrl } from '@/lib/adminToken'
 
 // Strip invisible BOM (U+FEFF) that can sneak into env values via copy-paste
 const clean = (s: string) => s.replace(/^\uFEFF/, '').trim()
@@ -7,7 +8,6 @@ const clean = (s: string) => s.replace(/^\uFEFF/, '').trim()
 const SUPABASE_URL         = clean(process.env.SUPABASE_URL!)
 const SUPABASE_SERVICE_KEY = clean(process.env.SUPABASE_SERVICE_KEY!)
 const RESEND_API_KEY       = clean(process.env.RESEND_API_KEY!)
-const ADMIN_APPROVE_SECRET = clean(process.env.ADMIN_APPROVE_SECRET!)
 const GIANMARCO_EMAIL      = clean(process.env.GIANMARCO_EMAIL!)
 
 // Convert "9:00 am" → "09:00:00" for Supabase time column
@@ -18,14 +18,6 @@ function toTime24(t: string): string {
   if (period === 'pm' && hours !== 12) hours += 12
   if (period === 'am' && hours === 12) hours = 0
   return `${hours.toString().padStart(2, '0')}:${m}:00`
-}
-
-// HMAC token for approve/reject links
-function signToken(bookingId: string | number): string {
-  return crypto
-    .createHmac('sha256', ADMIN_APPROVE_SECRET)
-    .update(String(bookingId))
-    .digest('hex')
 }
 
 function formatDate(d: string) {
@@ -82,7 +74,7 @@ function emailHtml(nome: string, lang: string): string {
 function adminNotifyHtml(
   nome: string, company: string | null, email: string,
   date: string, time24: string,
-  acceptUrl: string, rejectUrl: string
+  acceptUrl: string, rejectUrl: string, rescheduleUrl: string
 ): string {
   const dateIt = formatDate(date)
   const timeIt = time24.slice(0, 5)
@@ -128,8 +120,10 @@ function adminNotifyHtml(
           </div>
 
           <div style="text-align:center;">
-            <a href="${acceptUrl}" style="display:inline-block;padding:14px 36px;background:#ff7005;color:#fff;font-size:15px;font-weight:600;border-radius:10px;text-decoration:none;margin-right:12px;">✓ Accetta</a>
-            <a href="${rejectUrl}" style="display:inline-block;padding:14px 36px;background:rgba(255,255,255,0.08);color:rgba(231,231,231,0.6);font-size:15px;font-weight:500;border-radius:10px;text-decoration:none;border:1px solid rgba(255,255,255,0.12);">✗ Rifiuta</a>
+            <a href="${acceptUrl}" style="display:inline-block;padding:14px 36px;background:#ff7005;color:#fff;font-size:15px;font-weight:600;border-radius:10px;text-decoration:none;margin:0 6px 12px;">✓ Accetta</a>
+            <a href="${rejectUrl}" style="display:inline-block;padding:14px 36px;background:rgba(255,255,255,0.08);color:rgba(231,231,231,0.6);font-size:15px;font-weight:500;border-radius:10px;text-decoration:none;border:1px solid rgba(255,255,255,0.12);margin:0 6px 12px;">✗ Rifiuta</a>
+            <br/>
+            <a href="${rescheduleUrl}" style="display:inline-block;padding:12px 28px;background:transparent;color:#ff7005;font-size:14px;font-weight:500;border-radius:10px;text-decoration:none;border:1px solid rgba(255,112,5,0.4);margin:0 6px;">📅 Proponi altra data</a>
           </div>
         </td></tr>
 
@@ -186,6 +180,16 @@ export async function POST(req: NextRequest) {
     const [inserted] = await insertRes.json()
     const bookingId = inserted.id
 
+    // ── 1b. Create a tentative "hold" event so the slot is blocked now ──
+    await createHoldEvent({
+      bookingId,
+      nome,
+      company: company || undefined,
+      email,
+      date,
+      time: time24,
+    })
+
     // ── 2. Send Email 1 to client (confirmation receipt) ─────────
     const isIt = lang === 'it'
     const emailRes = await fetch('https://api.resend.com/emails', {
@@ -210,9 +214,10 @@ export async function POST(req: NextRequest) {
 
     // ── 3. Send admin notification to Gianmarco ──────────────────
     const token = signToken(bookingId)
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.keecks.ai'
-    const acceptUrl = `${baseUrl}/api/admin/approve?id=${bookingId}&token=${token}&action=accept`
-    const rejectUrl = `${baseUrl}/api/admin/approve?id=${bookingId}&token=${token}&action=reject`
+    const baseUrl = getBaseUrl()
+    const acceptUrl     = `${baseUrl}/api/admin/approve?id=${bookingId}&token=${token}&action=accept`
+    const rejectUrl     = `${baseUrl}/api/admin/approve?id=${bookingId}&token=${token}&action=reject`
+    const rescheduleUrl = `${baseUrl}/admin/reschedule?id=${bookingId}&token=${token}`
 
     const adminEmailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -224,7 +229,7 @@ export async function POST(req: NextRequest) {
         from: 'Keecks <noreply@keecks.ai>',
         to: [GIANMARCO_EMAIL],
         subject: `Nuova richiesta demo — ${nome}`,
-        html: adminNotifyHtml(nome, company || null, email, date, time24, acceptUrl, rejectUrl),
+        html: adminNotifyHtml(nome, company || null, email, date, time24, acceptUrl, rejectUrl, rescheduleUrl),
       }),
     })
 

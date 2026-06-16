@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createHoldEvent, deleteBookingEvents } from '@/lib/google-calendar'
+import { verifyToken } from '@/lib/adminToken'
 
 const clean = (s: string) => s.replace(/^\uFEFF/, '').trim()
 
@@ -56,11 +58,30 @@ function rescheduleEmailHtml(nome: string, newDate: string, newTime: string): st
 }
 
 export async function POST(req: NextRequest) {
-  const { id, pwd, nome, email, new_date, new_time } = await req.json()
+  const { id, pwd, token, new_date, new_time } = await req.json()
 
-  if (pwd !== ADMIN_PASSWORD) {
+  // Authorize via admin password (admin page) OR signed token (email link)
+  const authorized = pwd === ADMIN_PASSWORD || (token && verifyToken(id, token))
+  if (!authorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+
+  if (!id || !new_date || !new_time) {
+    return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+  }
+
+  // Fetch booking details from the DB (don't trust the client for these)
+  const bookingRes = await fetch(
+    `${SUPABASE_URL}/rest/v1/FormSito?id=eq.${id}&select=nome,email,company_name`,
+    { headers: { 'apikey': SUPABASE_SERVICE_KEY, 'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}` } }
+  )
+  const booking = bookingRes.ok ? (await bookingRes.json())[0] : null
+  if (!booking) {
+    return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
+  }
+  const nome    = booking.nome as string
+  const email   = booking.email as string
+  const company = booking.company_name?.trim() || undefined
 
   // 1. Send reschedule email
   const emailRes = await fetch('https://api.resend.com/emails', {
@@ -97,6 +118,11 @@ export async function POST(req: NextRequest) {
       confirmed: false,
     }),
   })
+
+  // 3. Move the hold on the calendar: drop old event(s), create a new
+  //    tentative hold at the proposed date/time so the new slot is blocked.
+  await deleteBookingEvents(id)
+  await createHoldEvent({ bookingId: id, nome, company, email, date: new_date, time: new_time })
 
   return NextResponse.json({ ok: true })
 }

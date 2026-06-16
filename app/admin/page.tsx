@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 type Booking = {
   id: number
@@ -60,8 +60,20 @@ function RescheduleForm({
   const [newDate, setNewDate] = useState('')
   const [newTime, setNewTime] = useState('')
   const [sending, setSending] = useState(false)
+  const [booked, setBooked]   = useState<string[]>([])
 
   const slots = getTimeSlots(newDate)
+
+  // Load already-booked slots for the chosen date
+  useEffect(() => {
+    if (!newDate) { setBooked([]); return }
+    let cancelled = false
+    fetch(`/api/availability?date=${newDate}`)
+      .then(r => r.json())
+      .then(d => { if (!cancelled) setBooked(d.booked ?? []) })
+      .catch(() => { if (!cancelled) setBooked([]) })
+    return () => { cancelled = true }
+  }, [newDate])
 
   const handleSend = async () => {
     if (!newDate || !newTime) return
@@ -100,25 +112,32 @@ function RescheduleForm({
         {/* Time slots */}
         {newDate && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {slots.map(slot => (
-              <button
-                key={slot}
-                type="button"
-                onClick={() => setNewTime(slot)}
-                style={{
-                  padding: '6px 10px',
-                  fontSize: 12,
-                  borderRadius: 8,
-                  border: `1px solid ${newTime === slot ? 'var(--orange)' : 'rgba(231,231,231,0.15)'}`,
-                  background: newTime === slot ? 'var(--orange)' : 'rgba(255,255,255,0.04)',
-                  color: newTime === slot ? '#fff' : 'rgba(231,231,231,0.7)',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s',
-                }}
-              >
-                {slot}
-              </button>
-            ))}
+            {slots.map(slot => {
+              const isBooked = booked.includes(slot)
+              const isActive = newTime === slot
+              return (
+                <button
+                  key={slot}
+                  type="button"
+                  onClick={() => !isBooked && setNewTime(slot)}
+                  disabled={isBooked}
+                  title={isBooked ? 'Già occupato' : undefined}
+                  style={{
+                    padding: '6px 10px',
+                    fontSize: 12,
+                    borderRadius: 8,
+                    border: `1px solid ${isActive ? 'var(--orange)' : 'rgba(231,231,231,0.15)'}`,
+                    background: isActive ? 'var(--orange)' : 'rgba(255,255,255,0.04)',
+                    color: isBooked ? 'rgba(231,231,231,0.28)' : isActive ? '#fff' : 'rgba(231,231,231,0.7)',
+                    cursor: isBooked ? 'not-allowed' : 'pointer',
+                    textDecoration: isBooked ? 'line-through' : 'none',
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  {slot}
+                </button>
+              )
+            })}
           </div>
         )}
       </div>
@@ -184,6 +203,7 @@ export default function AdminPage() {
       body: JSON.stringify({
         id: b.id, pwd,
         nome: b.nome, email: b.email,
+        company_name: b.company_name,
         consultation_date: b.consultation_date,
         consultation_time: b.consultation_time,
       }),
