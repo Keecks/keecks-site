@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { lp } from '@/lib/langPath'
 
 const LABELS = {
   en: {
@@ -38,7 +39,7 @@ export default function CookieBanner() {
     <div className="cookie-banner" role="dialog" aria-label="Cookie notice">
       <p className="cookie-banner__text">{t.text}</p>
       <div className="cookie-banner__actions">
-        <a href="/cookies" className="cookie-banner__link">{t.more}</a>
+        <a href={lp(lang, '/cookies')} className="cookie-banner__link">{t.more}</a>
         <button className="cookie-banner__ok" onClick={accept}>{t.accept}</button>
       </div>
     </div>
