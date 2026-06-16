@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { lp } from '@/lib/langPath'
 
 const LABELS = {
   en: {
@@ -25,7 +26,7 @@ export default function CTA() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) return
-    router.push(`/book?email=${encodeURIComponent(email)}`)
+    router.push(`${lp(lang, '/book')}?email=${encodeURIComponent(email)}`)
   }
 
   return (
