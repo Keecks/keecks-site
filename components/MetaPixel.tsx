@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { useEffect, useRef, useState, Suspense } from 'react'
+import { usePathname } from 'next/navigation'
 
 export const FB_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID
 
@@ -27,8 +27,8 @@ export const trackCustomEvent = (name: string, options = {}) => {
 
 function PixelTracker() {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
   const [loaded, setLoaded] = useState(false)
+  const lastTracked = useRef<string | null>(null)
 
   // 1. Load Pixel logic
   useEffect(() => {
@@ -57,12 +57,14 @@ function PixelTracker() {
     }
   }, [loaded])
 
-  // 2. Track PageView on route changes
+  // 2. Track PageView once per real page (not on UTM/fbclid query changes,
+  //    and guarded against StrictMode / loaded-toggle double-fires)
   useEffect(() => {
-    if (loaded && window.fbq) {
-      window.fbq('track', 'PageView')
-    }
-  }, [pathname, searchParams, loaded])
+    if (!loaded || !window.fbq) return
+    if (lastTracked.current === pathname) return
+    lastTracked.current = pathname
+    window.fbq('track', 'PageView')
+  }, [pathname, loaded])
 
   // 3. Track Scroll
   useEffect(() => {
