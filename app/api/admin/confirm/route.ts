@@ -26,14 +26,20 @@ function buildEventTimes(date: string, time: string) {
   return { start, end }
 }
 
-function confirmEmailHtml(nome: string, date: string, time: string, meetLink?: string): string {
+function confirmEmailHtml(nome: string, date: string, time: string, meetLink?: string, eventLink?: string): string {
   const dateIt = formatDate(date)
   const timeIt = formatTime(time)
 
   const meetSection = meetLink ? `
-          <div style="margin:0 0 32px;padding:20px 24px;background:rgba(255,112,5,0.08);border:1px solid rgba(255,112,5,0.25);border-radius:12px;">
-            <p style="margin:0 0 12px;font-size:13px;color:rgba(231,231,231,0.5);text-transform:uppercase;letter-spacing:0.06em;">Link Google Meet</p>
+          <div style="margin:0 0 16px;padding:20px 24px;background:rgba(255,112,5,0.08);border:1px solid rgba(255,112,5,0.25);border-radius:12px;">
+            <p style="margin:0 0 12px;font-size:13px;color:rgba(231,231,231,0.5);text-transform:uppercase;letter-spacing:0.06em;">Link della call (Google Meet)</p>
             <a href="${meetLink}" style="color:#ff7005;font-size:15px;font-weight:600;text-decoration:none;word-break:break-all;">${meetLink}</a>
+          </div>` : ''
+
+  const eventSection = eventLink ? `
+          <div style="margin:0 0 32px;padding:20px 24px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;">
+            <p style="margin:0 0 12px;font-size:13px;color:rgba(231,231,231,0.5);text-transform:uppercase;letter-spacing:0.06em;">Evento sul calendario</p>
+            <a href="${eventLink}" style="color:#e7e7e7;font-size:15px;font-weight:600;text-decoration:none;word-break:break-all;">Aggiungi al tuo calendario</a>
           </div>` : ''
 
   return `<!DOCTYPE html>
@@ -59,6 +65,7 @@ function confirmEmailHtml(nome: string, date: string, time: string, meetLink?: s
             Durante la chiamata, ci prenderemo il tempo per comprendere la tua realtà e capire assieme come Keecks può supportare la tua attività. Avremo l'occasione di provare dal vivo il nostro assistente vocale e affrontare qualsiasi domanda o curiosità.
           </p>
           ${meetSection}
+          ${eventSection}
           <p style="margin:0;font-size:14px;line-height:1.8;color:rgba(231,231,231,0.6);">A presto,<br/>Gianmarco</p>
         </td></tr>
 
@@ -75,14 +82,17 @@ function confirmEmailHtml(nome: string, date: string, time: string, meetLink?: s
 }
 
 export async function POST(req: NextRequest) {
-  const { id, pwd, nome, email, consultation_date, consultation_time } = await req.json()
+  const { id, pwd, nome, email, company_name, consultation_date, consultation_time } = await req.json()
 
   if (pwd !== ADMIN_PASSWORD) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  const company = company_name?.trim() || undefined
+
   // ── 1. Create Google Calendar event with Meet link ────────────
-  let meetLink: string | undefined
+  let meetLink:  string | undefined
+  let eventLink: string | undefined
   try {
     const calendar = await getCalendarClient()
     const { start, end } = buildEventTimes(consultation_date, consultation_time)
@@ -91,8 +101,8 @@ export async function POST(req: NextRequest) {
       calendarId: 'primary',
       conferenceDataVersion: 1,
       requestBody: {
-        summary: `Consulenza Keecks — ${nome}`,
-        description: `Consulenza commerciale con ${nome} (${email})`,
+        summary: `Consulenza Keecks — ${nome}${company ? ` (${company})` : ''}`,
+        description: `Consulenza commerciale con ${nome}${company ? `\nAzienda: ${company}` : ''}\nEmail: ${email}`,
         start: { dateTime: start, timeZone: 'Europe/Rome' },
         end:   { dateTime: end,   timeZone: 'Europe/Rome' },
         attendees: [
@@ -118,6 +128,7 @@ export async function POST(req: NextRequest) {
     meetLink = event.data.conferenceData?.entryPoints?.find(
       ep => ep.entryPointType === 'video'
     )?.uri ?? undefined
+    eventLink = event.data.htmlLink ?? undefined
 
     console.log('Calendar event created:', event.data.htmlLink)
   } catch (err) {
@@ -136,7 +147,7 @@ export async function POST(req: NextRequest) {
       from: 'Gianmarco — Keecks <noreply@keecks.ai>',
       to: [email],
       subject: 'Appuntamento confermato',
-      html: confirmEmailHtml(nome, consultation_date, consultation_time, meetLink),
+      html: confirmEmailHtml(nome, consultation_date, consultation_time, meetLink, eventLink),
     }),
   })
 
@@ -157,5 +168,5 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify({ confirmed: true }),
   })
 
-  return NextResponse.json({ ok: true, meetLink })
+  return NextResponse.json({ ok: true, meetLink, eventLink })
 }

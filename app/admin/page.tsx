@@ -184,6 +184,7 @@ export default function AdminPage() {
       body: JSON.stringify({
         id: b.id, pwd,
         nome: b.nome, email: b.email,
+        company_name: b.company_name,
         consultation_date: b.consultation_date,
         consultation_time: b.consultation_time,
       }),
