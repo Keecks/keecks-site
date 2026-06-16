@@ -43,16 +43,19 @@ export function buildEventTimes(date: string, time: string) {
   return { start, end }
 }
 
-// Build a "add to your own calendar" Google Calendar link (TEMPLATE action).
+// Build an "add to your own calendar" Google Calendar link (TEMPLATE action).
 // Works for any Google user: opens a pre-filled event they can save.
-function buildAddToCalendarLink(opts: {
-  summary: string; start: string; end: string; meetLink?: string
+// Built only from booking data → does NOT depend on the Google API, so it can
+// always be shown in the confirmation email even if event creation failed.
+export function addToCalendarLink(opts: {
+  company?: string; date: string; time: string; meetLink?: string
 }): string {
+  const { start, end } = buildEventTimes(opts.date, opts.time)
   const compact = (local: string) => local.replace(/[-:]/g, '') // YYYYMMDDTHHMMSS
   const params = new URLSearchParams({
     action: 'TEMPLATE',
-    text:   opts.summary,
-    dates:  `${compact(opts.start)}/${compact(opts.end)}`,
+    text:   `Consulenza Keecks${opts.company ? ` — ${opts.company}` : ''}`,
+    dates:  `${compact(start)}/${compact(end)}`,
     ctz:    TZ,
     details: opts.meetLink ? `Link della call: ${opts.meetLink}` : 'Consulenza Keecks',
   })
@@ -119,11 +122,12 @@ export async function deleteBookingEvents(bookingId: string | number): Promise<v
   }
 }
 
-// Create the CONFIRMED event with Google Meet + client as attendee.
-// Returns the Meet link and the calendar event link for the confirmation email.
+// Create the CONFIRMED event with Google Meet.
+// Returns the Meet link (the add-to-calendar link is built separately, so it
+// survives even if this call fails — see addToCalendarLink).
 export async function createConfirmedEvent(
   b: BookingInfo
-): Promise<{ meetLink?: string; eventLink?: string }> {
+): Promise<{ meetLink?: string }> {
   const calendar = await getCalendarClient()
   const { start, end } = buildEventTimes(b.date, b.time)
 
@@ -163,11 +167,5 @@ export async function createConfirmedEvent(
     ep => ep.entryPointType === 'video'
   )?.uri ?? undefined
 
-  // Link the client can use to add the appointment to their OWN calendar
-  const eventLink = buildAddToCalendarLink({
-    summary: `Consulenza Keecks${b.company ? ` — ${b.company}` : ''}`,
-    start, end, meetLink,
-  })
-
-  return { meetLink, eventLink }
+  return { meetLink }
 }
