@@ -3,7 +3,7 @@ import { createHoldEvent } from '@/lib/google-calendar'
 import { signToken, getBaseUrl } from '@/lib/adminToken'
 
 // Strip invisible BOM (U+FEFF) that can sneak into env values via copy-paste
-const clean = (s: string) => s.replace(/^\uFEFF/, '').trim()
+const clean = (s?: string) => (s ?? '').replace(/^\uFEFF/, '').trim()
 
 const SUPABASE_URL         = clean(process.env.SUPABASE_URL!)
 const SUPABASE_SERVICE_KEY = clean(process.env.SUPABASE_SERVICE_KEY!)

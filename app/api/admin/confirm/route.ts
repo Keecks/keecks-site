@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createConfirmedEvent, deleteBookingEvents, addToCalendarLink } from '@/lib/google-calendar'
 
-const clean = (s: string) => s.replace(/^﻿/, '').trim()
+const clean = (s?: string) => (s ?? '').replace(/^﻿/, '').trim()
 
 const SUPABASE_URL         = clean(process.env.SUPABASE_URL!)
 const SUPABASE_SERVICE_KEY = clean(process.env.SUPABASE_SERVICE_KEY!)

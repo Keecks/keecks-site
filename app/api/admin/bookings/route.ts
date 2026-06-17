@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const clean = (s: string) => s.replace(/^\uFEFF/, '').trim()
+const clean = (s?: string) => (s ?? '').replace(/^\uFEFF/, '').trim()
 
 const SUPABASE_URL        = clean(process.env.SUPABASE_URL!)
 const SUPABASE_SERVICE_KEY = clean(process.env.SUPABASE_SERVICE_KEY!)
