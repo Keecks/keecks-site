@@ -7,7 +7,7 @@ const LABELS = {
   en: {
     title: 'Your privacy matters to us',
     body: 'We use cookies to make the site work and, with your consent, to measure performance and marketing. You can accept, reject, or choose which cookies to allow.',
-    privacy: 'Privacy Policy',
+    privacy: 'Cookie Policy',
     customize: 'Customize',
     accept: 'Accept',
     acceptAll: 'Accept all',
@@ -36,7 +36,7 @@ const LABELS = {
   it: {
     title: 'Abbiamo a cuore la tua privacy',
     body: 'Utilizziamo i cookie per far funzionare il sito e, con il tuo consenso, per misurare le prestazioni e il marketing. Puoi accettare, rifiutare o scegliere quali cookie consentire.',
-    privacy: 'Informativa sulla Privacy',
+    privacy: 'Informativa sui Cookie',
     customize: 'Personalizza',
     accept: 'Accetta',
     acceptAll: 'Accetta tutti',
@@ -151,8 +151,8 @@ export default function CookieBanner() {
             </>
           ) : (
             <>
-              <button className="cookie-btn cookie-btn--ghost" onClick={() => setShowCustom(true)}>{t.customize}</button>
               <button className="cookie-btn cookie-btn--primary" onClick={acceptAll}>{t.accept}</button>
+              <button className="cookie-btn cookie-btn--ghost" onClick={() => setShowCustom(true)}>{t.customize}</button>
             </>
           )}
         </div>

@@ -1316,7 +1316,8 @@ img, video { max-width: 100%; height: auto; display: block; }
   text-align: left;
 }
 .cookie-modal__link {
-  display: inline-block;
+  display: block;
+  text-align: left;
   font-size: 13px;
   color: var(--text-mid);
   text-decoration: underline;
