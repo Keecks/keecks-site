@@ -1380,8 +1380,9 @@ img, video { max-width: 100%; height: auto; display: block; }
 .cookie-modal__actions {
   display: flex;
   gap: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 4px;
 }
+.cookie-modal__actions--stacked { flex-direction: column; }
 .cookie-btn {
   flex: 1;
   font-family: var(--body);

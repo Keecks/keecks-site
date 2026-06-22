@@ -10,8 +10,9 @@ const LABELS = {
     privacy: 'Privacy Policy',
     customize: 'Customize',
     accept: 'Accept',
+    acceptAll: 'Accept all',
     save: 'Accept selected',
-    reject: 'Reject and close',
+    reject: 'Reject',
     always: 'Always on',
     cats: {
       necessary: {
@@ -38,8 +39,9 @@ const LABELS = {
     privacy: 'Informativa sulla Privacy',
     customize: 'Personalizza',
     accept: 'Accetta',
+    acceptAll: 'Accetta tutti',
     save: 'Accetta selezionati',
-    reject: 'Rifiuta e chiudi',
+    reject: 'Rifiuta',
     always: 'Sempre attivi',
     cats: {
       necessary: {
@@ -70,9 +72,10 @@ export default function CookieBanner() {
   const [prefs, setPrefs] = useState({ preferences: true, statistics: true, marketing: true })
 
   useEffect(() => {
-    if (!localStorage.getItem('cookie-consent')) {
-      setVisible(true)
-    }
+    if (localStorage.getItem('cookie-consent')) return
+    // Mostra il banner dopo 3 secondi dall'ingresso nel sito
+    const timer = setTimeout(() => setVisible(true), 3000)
+    return () => clearTimeout(timer)
   }, [])
 
   const persist = (p: { preferences: boolean; statistics: boolean; marketing: boolean }) => {
@@ -96,6 +99,7 @@ export default function CookieBanner() {
   if (!visible) return null
 
   const cats = t.cats
+  const allOff = !prefs.preferences && !prefs.statistics && !prefs.marketing
 
   return (
     <div className="cookie-modal" role="dialog" aria-modal="true" aria-label={t.title}>
@@ -137,11 +141,13 @@ export default function CookieBanner() {
           </div>
         )}
 
-        <div className="cookie-modal__actions">
+        <div className={`cookie-modal__actions${showCustom ? ' cookie-modal__actions--stacked' : ''}`}>
           {showCustom ? (
             <>
-              <button className="cookie-btn cookie-btn--ghost" onClick={saveSelected}>{t.save}</button>
-              <button className="cookie-btn cookie-btn--primary" onClick={acceptAll}>{t.accept}</button>
+              <button className="cookie-btn cookie-btn--primary cookie-btn--full" onClick={acceptAll}>{t.acceptAll}</button>
+              <button className="cookie-btn cookie-btn--ghost cookie-btn--full" onClick={saveSelected}>
+                {allOff ? t.reject : t.save}
+              </button>
             </>
           ) : (
             <>
@@ -150,10 +156,6 @@ export default function CookieBanner() {
             </>
           )}
         </div>
-
-        {showCustom && (
-          <button className="cookie-modal__reject" onClick={rejectAll}>{t.reject}</button>
-        )}
       </div>
     </div>
   )
