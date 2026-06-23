@@ -40,7 +40,7 @@ export default function Navbar() {
 
       <div className="nav__actions">
         <a href={lang === 'it' ? '/it/book' : '/book'} className="nav__cta">
-          {lang === 'it' ? 'Inizia ora' : 'Get Started'}
+          {lang === 'it' ? 'Richiedi una Demo' : 'Request a Demo'}
         </a>
 
         {/* Language toggle — testo semplice stacked, nessun container */}

@@ -17,7 +17,7 @@ const PHASE1_FRAME = Math.round(PHASE1_END * FRAME_FPS)  // 90
 const PHRASES = {
   en: {
     lower: 'Every call handled. Every appointment booked. Automatically.',
-    alwaysLabel: 'AI Voice Assistants',
+    alwaysLabel: 'AI Voice Assistant',
     alwaysHeading: <>The AI assistant that<br />handles your calls. 24/7.</>,
     alwaysSub: <>Even when your staff is busy.<br />Even when your business is closed.</>,
     heroTitle: <>More clients.<br />Less thoughts.</>,

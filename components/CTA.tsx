@@ -8,12 +8,12 @@ const LABELS = {
   en: {
     title: <>Less calls to manage.<br />More room to breathe.</>,
     placeholder: 'Your email address',
-    btn: 'Get Started',
+    btn: 'Request a Demo',
   },
   it: {
     title: <>Meno chiamate da gestire.<br />Più spazio per respirare.</>,
     placeholder: 'Il tuo indirizzo email',
-    btn: 'Inizia ora',
+    btn: 'Richiedi una Demo',
   },
 }
 

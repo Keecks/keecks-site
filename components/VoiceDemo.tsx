@@ -113,7 +113,7 @@ export default function VoiceDemo() {
   const playedCount = Math.round(progress * BARS.length)
 
   return (
-    <section className="section">
+    <section className="section" id="voice-demo">
       <div className="container">
         <div className="section__header">
           <span className="tag section__tag">{labels.tag}</span>

@@ -1,19 +1,32 @@
 'use client'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
-const FAQ_EN = [
+type FaqItem = { q: string; a: ReactNode }
+
+const FAQ_EN: FaqItem[] = [
   {
     q: 'What is Keecks?',
     a: 'Keecks is an AI voice assistant that answers your business calls, handles client enquiries, and books appointments directly in your system, even when you\'re busy or when your business is closed. It\'s built specifically around your business, so every conversation sounds like it comes from your team.',
   },
   {
     q: 'How is Keecks priced?',
-    a: 'Keecks offers different plans depending on your needs and the volume of calls your business receives. Click on Get Started to get a free quote tailored to you.',
+    a: (
+      <>
+        {'Keecks offers different plans depending on your needs and the volume of calls your business receives. Click on '}
+        <a href="/book" className="faq__link">Request a Demo</a>
+        {' to get a free quote tailored to you.'}
+      </>
+    ),
   },
   {
     q: 'Will the voice sound like a robot?',
-    a: 'Only if you like robots. And we don\'t. Keecks has a tone of voice designed specifically around you, the way you speak, the words you choose, the warmth you bring. It converses like your best team member would: naturally, attentively, with the right level of care for every client. Forget the "press 1 to continue", with Keecks it\'s a real conversation. Click here to hear how it sounds.',
+    a: (
+      <>
+        {'Only if you like robots. And we don\'t. Keecks has a tone of voice designed specifically around you, the way you speak, the words you choose, the warmth you bring. It converses like your best team member would: naturally, attentively, with the right level of care for every client. Forget the "press 1 to continue", with Keecks it\'s a real conversation. '}
+        <a href="#voice-demo" className="faq__link">Click here to hear how it sounds.</a>
+      </>
+    ),
   },
   {
     q: 'Does Keecks work with my existing booking system?',
@@ -41,18 +54,29 @@ const FAQ_EN = [
   },
 ]
 
-const FAQ_IT = [
+const FAQ_IT: FaqItem[] = [
   {
     q: 'Cos\'è Keecks?',
     a: 'Keecks è un assistente vocale, sviluppato su modelli di intelligenza artificiale, che risponde alle chiamate, gestisce le richieste dei tuoi clienti e prenota gli appuntamenti direttamente nel tuo gestionale. Anche quando sei occupato o quando la tua attività è chiusa. Keecks viene costruito su misura attorno alla tua realtà, dal tono di voce al modo di gestire ogni singolo cliente, come farebbe il tuo miglior collaboratore.',
   },
   {
     q: 'Quanto costa Keecks?',
-    a: 'Keecks offre diversi piani in base alle tue esigenze e al volume di chiamate che la tua attività riceve. Clicca su Inizia ora per ricevere un preventivo gratuito su misura per te.',
+    a: (
+      <>
+        {'Keecks offre diversi piani in base alle tue esigenze e al volume di chiamate che la tua attività riceve. Clicca su '}
+        <a href="/it/book" className="faq__link">Richiedi una Demo</a>
+        {' per ricevere un preventivo gratuito su misura per te.'}
+      </>
+    ),
   },
   {
     q: 'La voce sembrerà quella di un robot?',
-    a: 'Solo se ti piacciono i robot. E a noi non piacciono. Keecks ha un tono di voce progettato su misura per te, il modo in cui parli, le parole che scegli, il calore che trasmetti. Conversa come farebbe il miglior membro del tuo staff: in modo naturale, attento, con il giusto livello di cura per ogni cliente. Dimentica il "per continuare premi 1", con Keecks è una conversazione vera. Clicca qui per sentire come suona.',
+    a: (
+      <>
+        {'Solo se ti piacciono i robot. E a noi non piacciono. Keecks ha un tono di voce progettato su misura per te, il modo in cui parli, le parole che scegli, il calore che trasmetti. Conversa come farebbe il miglior membro del tuo staff: in modo naturale, attento, con il giusto livello di cura per ogni cliente. Dimentica il "per continuare premi 1", con Keecks è una conversazione vera. '}
+        <a href="#voice-demo" className="faq__link">Clicca qui per sentire come suona.</a>
+      </>
+    ),
   },
   {
     q: 'Keecks funziona con il mio gestionale esistente?',
