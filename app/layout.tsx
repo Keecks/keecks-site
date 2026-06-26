@@ -6,8 +6,39 @@ import MetaPixel from '@/components/MetaPixel'
 import { LanguageProvider } from '@/contexts/LanguageContext'
 
 export const metadata: Metadata = {
-  title: 'Keecks — More clients. Less thoughts.',
-  description: 'The AI assistant that handles your calls, 24/7.',
+  metadataBase: new URL('https://keecks.ai'),
+  title: {
+    default: 'Keecks — AI Voice Assistant',
+    template: '%s — Keecks',
+  },
+  description: 'Keecks is the AI voice assistant that answers your calls and books appointments 24/7.',
+  openGraph: {
+    type: 'website',
+    siteName: 'Keecks',
+    images: [{
+      url: '/images/Keecks_AI-Voice-Assistant.png',
+      width: 1200,
+      height: 630,
+      alt: 'Keecks — AI Voice Assistant',
+    }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    images: ['/images/Keecks_AI-Voice-Assistant.png'],
+  },
+}
+
+const orgJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Keecks',
+  url: 'https://keecks.ai',
+  logo: 'https://keecks.ai/apple-icon.png',
+  description: 'Keecks is the AI voice assistant that answers calls and books appointments 24/7.',
+  sameAs: [
+    'https://www.instagram.com/keecks.ai',
+    'https://www.tiktok.com/@keecks.ai',
+  ],
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -29,6 +60,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{
             __html: `if('scrollRestoration' in history){history.scrollRestoration='manual';window.scrollTo(0,0);}`,
           }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
         <AnimatedBg />
         <div style={{ position: 'relative', zIndex: 1 }}>

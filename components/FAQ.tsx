@@ -2,7 +2,7 @@
 import { useState, type ReactNode } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
-type FaqItem = { q: string; a: ReactNode }
+type FaqItem = { q: string; a: ReactNode; plain?: string }
 
 const FAQ_EN: FaqItem[] = [
   {
@@ -18,6 +18,7 @@ const FAQ_EN: FaqItem[] = [
         {' to get a free quote tailored to you.'}
       </>
     ),
+    plain: `Keecks offers different plans depending on your needs and the volume of calls your business receives. Click on Request a Demo to get a free quote tailored to you.`,
   },
   {
     q: 'Will the voice sound like a robot?',
@@ -27,6 +28,7 @@ const FAQ_EN: FaqItem[] = [
         <a href="#voice-demo" className="faq__link">Click here to hear how it sounds.</a>
       </>
     ),
+    plain: `Only if you like robots. And we don't. Keecks has a tone of voice designed specifically around you, the way you speak, the words you choose, the warmth you bring. It converses like your best team member would: naturally, attentively, with the right level of care for every client. Forget the "press 1 to continue", with Keecks it's a real conversation. Click here to hear how it sounds.`,
   },
   {
     q: 'Does Keecks work with my existing booking system?',
@@ -68,6 +70,7 @@ const FAQ_IT: FaqItem[] = [
         {' per ricevere un preventivo gratuito su misura per te.'}
       </>
     ),
+    plain: `Keecks offre diversi piani in base alle tue esigenze e al volume di chiamate che la tua attività riceve. Clicca su Richiedi una Demo per ricevere un preventivo gratuito su misura per te.`,
   },
   {
     q: 'La voce sembrerà quella di un robot?',
@@ -77,6 +80,7 @@ const FAQ_IT: FaqItem[] = [
         <a href="#voice-demo" className="faq__link">Clicca qui per sentire come suona.</a>
       </>
     ),
+    plain: `Solo se ti piacciono i robot. E a noi non piacciono. Keecks ha un tono di voce progettato su misura per te, il modo in cui parli, le parole che scegli, il calore che trasmetti. Conversa come farebbe il miglior membro del tuo staff: in modo naturale, attento, con il giusto livello di cura per ogni cliente. Dimentica il "per continuare premi 1", con Keecks è una conversazione vera. Clicca qui per sentire come suona.`,
   },
   {
     q: 'Keecks funziona con il mio gestionale esistente?',
@@ -116,8 +120,26 @@ export default function FAQ() {
   const items = lang === 'it' ? FAQ_IT : FAQ_EN
   const labels = LABELS[lang]
 
+  // Dati strutturati per Google (può mostrare le FAQ a comparsa nei risultati)
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map(it => ({
+      '@type': 'Question',
+      name: it.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: it.plain ?? (typeof it.a === 'string' ? it.a : ''),
+      },
+    })),
+  }
+
   return (
-    <section className="section">
+    <section className="section section--faq">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <div className="container">
         <div className="section__header">
           <span className="tag section__tag">{labels.tag}</span>

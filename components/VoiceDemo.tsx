@@ -16,6 +16,14 @@ const AUDIO_FILES = {
   ],
 }
 
+// Durate REALI degli MP3 in secondi — i browser riportano durate sbagliate
+// (più corte) per gli MP3 VBR, quindi usiamo i valori reali.
+// Ordine come AUDIO_FILES/TABS: [Salone/Hair, Clinica/Medical, Ristorante/Restaurant].
+const DURATIONS: Record<'en' | 'it', number[]> = {
+  en: [118, 96, 122],   // Hair 1:58 · Medical 1:36 · Restaurant 2:02
+  it: [115, 132, 122],  // Parrucchieri 1:55 · Clinica 2:12 · Ristorante 2:02
+}
+
 const TABS = {
   en: ['Hair Salon', 'Medical Clinic', 'Restaurant'],
   it: ['Salone di parrucchieri', 'Clinica Medica', 'Ristorante'],
@@ -49,6 +57,9 @@ export default function VoiceDemo() {
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
+  // Durata reale del clip attivo (audio.duration è inaffidabile sui VBR — vedi DURATIONS)
+  const realDuration = DURATIONS[lang][active]
+
   // Build / swap audio element when tab changes
   useEffect(() => {
     const prev = audioRef.current
@@ -61,30 +72,29 @@ export default function VoiceDemo() {
     audioRef.current = audio
 
     const onTimeUpdate = () => {
-      setCurrentTime(audio.currentTime)
-      setProgress(audio.duration ? audio.currentTime / audio.duration : 0)
+      const t = Math.min(audio.currentTime, realDuration)
+      setCurrentTime(t)
+      setProgress(realDuration ? t / realDuration : 0)
     }
-    const onLoadedMetadata = () => setDuration(audio.duration)
     const onEnded = () => {
+      // La waveform si completa al 100% esattamente quando finisce l'audio
+      // (il reset a 0 avviene solo quando si ripreme play)
       setPlaying(false)
-      setProgress(0)
-      setCurrentTime(0)
-      audio.currentTime = 0
+      setProgress(1)
+      setCurrentTime(realDuration)
     }
 
     audio.addEventListener('timeupdate', onTimeUpdate)
-    audio.addEventListener('loadedmetadata', onLoadedMetadata)
     audio.addEventListener('ended', onEnded)
 
     setPlaying(false)
     setProgress(0)
     setCurrentTime(0)
-    setDuration(0)
+    setDuration(realDuration)
 
     return () => {
       audio.pause()
       audio.removeEventListener('timeupdate', onTimeUpdate)
-      audio.removeEventListener('loadedmetadata', onLoadedMetadata)
       audio.removeEventListener('ended', onEnded)
     }
   }, [active, lang])
@@ -96,6 +106,12 @@ export default function VoiceDemo() {
       audio.pause()
       setPlaying(false)
     } else {
+      // Se è arrivato in fondo, riparti da capo
+      if (audio.ended) {
+        audio.currentTime = 0
+        setProgress(0)
+        setCurrentTime(0)
+      }
       audio.play()
       setPlaying(true)
     }
@@ -104,13 +120,15 @@ export default function VoiceDemo() {
   // Click on waveform — seek
   const handleWaveformClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const audio = audioRef.current
-    if (!audio || !audio.duration) return
+    if (!audio) return
     const rect = e.currentTarget.getBoundingClientRect()
     const ratio = (e.clientX - rect.left) / rect.width
-    audio.currentTime = ratio * audio.duration
+    audio.currentTime = ratio * realDuration
   }
 
-  const playedCount = Math.round(progress * BARS.length)
+  // floor (non round): la barra si riempie in sincrono col playhead e arriva
+  // in fondo esattamente alla fine dell'audio (con round finiva ~1 bar prima).
+  const playedCount = Math.floor(progress * BARS.length)
 
   return (
     <section className="section" id="voice-demo">

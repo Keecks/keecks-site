@@ -1,77 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createConfirmedEvent, deleteBookingEvents, addToCalendarLink } from '@/lib/google-calendar'
 import { verifyToken } from '@/lib/adminToken'
+import { confirmEmailHtml, confirmSubject, type Lang } from '@/lib/emails'
 
-const clean = (s?: string) => (s ?? '').replace(/^\uFEFF/, '').trim()
+const clean = (s?: string) => (s ?? '').replace(/^﻿/, '').trim()
 
 const SUPABASE_URL         = clean(process.env.SUPABASE_URL!)
 const SUPABASE_SERVICE_KEY = clean(process.env.SUPABASE_SERVICE_KEY!)
 const RESEND_API_KEY       = clean(process.env.RESEND_API_KEY!)
-
-// ── Helpers ────────────────────────────────────────────────────────
-function formatDate(d: string) {
-  const [y, m, day] = d.split('-')
-  return `${day}/${m}/${y}`
-}
-
-function formatTime(t: string) {
-  return t.slice(0, 5)
-}
-
-function confirmEmailHtml(nome: string, date: string, time: string, meetLink?: string, eventLink?: string): string {
-  const dateIt = formatDate(date)
-  const timeIt = formatTime(time)
-
-  const meetSection = meetLink ? `
-          <div style="margin:0 0 16px;padding:20px 24px;background:rgba(255,112,5,0.08);border:1px solid rgba(255,112,5,0.25);border-radius:12px;">
-            <p style="margin:0 0 12px;font-size:13px;color:rgba(231,231,231,0.5);text-transform:uppercase;letter-spacing:0.06em;">Link della call (Google Meet)</p>
-            <a href="${meetLink}" style="color:#ff7005;font-size:15px;font-weight:600;text-decoration:none;word-break:break-all;">${meetLink}</a>
-          </div>` : ''
-
-  const eventSection = eventLink ? `
-          <div style="margin:0 0 32px;padding:20px 24px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;">
-            <p style="margin:0 0 12px;font-size:13px;color:rgba(231,231,231,0.5);text-transform:uppercase;letter-spacing:0.06em;">Evento sul calendario</p>
-            <a href="${eventLink}" style="color:#e7e7e7;font-size:15px;font-weight:600;text-decoration:none;word-break:break-all;">Aggiungi al tuo calendario</a>
-          </div>` : ''
-
-  return `<!DOCTYPE html>
-<html lang="it">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#0d0806;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0d0806;padding:48px 24px;">
-    <tr><td align="center">
-      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
-
-        <!-- Logo -->
-        <tr><td style="padding-bottom:40px;">
-          <span style="color:#e7e7e7;font-size:22px;font-weight:600;letter-spacing:-0.02em;">Keecks</span>
-        </td></tr>
-
-        <!-- Body -->
-        <tr><td style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:36px 32px;">
-          <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#e7e7e7;">Gentile ${nome},</p>
-          <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:rgba(231,231,231,0.75);">
-            il nostro appuntamento è confermato per il giorno <strong style="color:#e7e7e7;">${dateIt}</strong> alle <strong style="color:#e7e7e7;">${timeIt}</strong>.
-          </p>
-          <p style="margin:0 0 28px;font-size:15px;line-height:1.7;color:rgba(231,231,231,0.75);">
-            Durante la chiamata, ci prenderemo il tempo per comprendere la tua realtà e capire assieme come Keecks può supportare la tua attività. Avremo l'occasione di provare dal vivo il nostro assistente vocale e affrontare qualsiasi domanda o curiosità.
-          </p>
-          ${meetSection}
-          ${eventSection}
-          <p style="margin:0;font-size:14px;line-height:1.8;color:rgba(231,231,231,0.6);">A presto,<br/>Gianmarco</p>
-        </td></tr>
-
-        <!-- Tagline -->
-        <tr><td style="padding-top:28px;text-align:center;">
-          <span style="font-size:12px;color:rgba(231,231,231,0.35);letter-spacing:0.04em;">More clients. Less thoughts.</span>
-        </td></tr>
-
-      </table>
-    </td></tr>
-  </table>
-</body>
-</html>`
-}
 
 // ── GET handler ────────────────────────────────────────────────────
 export async function GET(req: NextRequest) {
@@ -137,6 +73,7 @@ export async function GET(req: NextRequest) {
   }
 
   const company = booking.company_name?.trim() || undefined
+  const language: Lang = booking.lang === 'en' ? 'en' : 'it'
 
   // 2. Upgrade the tentative hold to a confirmed event with Meet link.
   //    Remove the hold first so we don't end up with two events.
@@ -176,8 +113,8 @@ export async function GET(req: NextRequest) {
     body: JSON.stringify({
       from: 'Gianmarco — Keecks <info@keecks.ai>',
       to: [booking.email],
-      subject: 'Appuntamento confermato',
-      html: confirmEmailHtml(booking.nome, booking.consultation_date, booking.consultation_time, meetLink, eventLink),
+      subject: confirmSubject(language),
+      html: confirmEmailHtml(language, booking.nome, booking.consultation_date, booking.consultation_time, meetLink, eventLink),
     }),
   })
 

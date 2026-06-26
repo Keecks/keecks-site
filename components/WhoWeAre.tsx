@@ -10,12 +10,12 @@ const CONTENT = {
       {
         title: 'Designed to protect presence.',
         desc: "The real value of automation isn't speed. It's creating space for focus, attention, and human connection.",
-        img: { src: '/images/keecks-img-1.png', alt: 'Two people focused on a laptop in a warm, dimly-lit office' },
+        img: { src: '/images/Keecks_assistente-vocale-AI.png', alt: "Colleagues at work while Keecks' AI voice assistant handles calls" },
       },
       {
         title: 'Tailored, not templated.',
         desc: 'Tailored to your business — not built from a generic template. From tone to customer flow, every detail feels aligned with your brand.',
-        img: { src: '/images/keecks-img-2.png', alt: 'Person celebrating a win at their desk' },
+        img: { src: '/images/Keecks_segreteria-intelligente.png', alt: "Business owner at ease as Keecks' AI virtual receptionist manages bookings" },
       },
     ],
   },
@@ -26,12 +26,12 @@ const CONTENT = {
       {
         title: <>Pensato per te,<br />che vuoi esserci davvero.</>,
         desc: "Il vero valore dell'automazione non è la velocità. È creare spazio per la concentrazione, per la presenza sul momento e per la connessione umana.",
-        img: { src: '/images/keecks-img-1.png', alt: 'Due persone concentrate su un laptop in un ufficio caldo e soffuso' },
+        img: { src: '/images/Keecks_assistente-vocale-AI.png', alt: "Colleghi al lavoro mentre l'assistente vocale AI di Keecks gestisce le chiamate" },
       },
       {
         title: <>Progettato su misura.<br />Non preconfezionato.</>,
         desc: 'Progettato su misura per la tua attività, non costruito su un template generico. Dal tono alla gestione dei singoli clienti, ogni dettaglio rispecchia il tuo brand.',
-        img: { src: '/images/keecks-img-2.png', alt: 'Persona che celebra un risultato alla scrivania' },
+        img: { src: '/images/Keecks_segreteria-intelligente.png', alt: "Titolare soddisfatto, con la segreteria intelligente AI di Keecks che gestisce gli appuntamenti" },
       },
     ],
   },

@@ -119,6 +119,7 @@ function BookForm() {
   const [name,         setName]         = useState('')
   const [company,      setCompany]      = useState('')
   const [email,        setEmail]        = useState('')
+  const [phone,        setPhone]        = useState('')
   const [privacy,      setPrivacy]      = useState(false)
   const [loading,      setLoading]      = useState(false)
   const [bookedSlots,  setBookedSlots]  = useState<string[]>([])
@@ -128,11 +129,11 @@ function BookForm() {
   const [hasTrackedComplete, setHasTrackedComplete] = useState(false)
 
   useEffect(() => {
-    if (name && email && date && time && privacy && !hasTrackedComplete) {
+    if (name && email && phone && date && time && privacy && !hasTrackedComplete) {
       setHasTrackedComplete(true)
       trackCustomEvent('FormComplete')
     }
-  }, [name, email, date, time, privacy, hasTrackedComplete])
+  }, [name, email, phone, date, time, privacy, hasTrackedComplete])
 
   const handleFormInteraction = () => {
     if (!hasTrackedStart) {
@@ -162,7 +163,7 @@ function BookForm() {
       await fetch('/api/book', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome: name, company, email, date, time, lang: 'it' }),
+        body: JSON.stringify({ nome: name, company, phone, email, date, time, lang: 'it' }),
       })
       window.location.href = '/it/book/confirmed'
     } catch {
@@ -240,6 +241,13 @@ function BookForm() {
         <label className="lp-form__label">E-mail</label>
         <input type="email" className="lp-form__input" placeholder="Inserisci la tua mail"
           value={email} onChange={e => setEmail(e.target.value)} required />
+      </div>
+
+      {/* Telefono */}
+      <div className="lp-form__field">
+        <label className="lp-form__label">Telefono</label>
+        <input type="tel" className="lp-form__input" placeholder="Inserisci il tuo numero"
+          value={phone} onChange={e => setPhone(e.target.value)} required />
       </div>
 
       {/* Privacy */}

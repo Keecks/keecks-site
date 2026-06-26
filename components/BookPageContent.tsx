@@ -22,6 +22,8 @@ const LABELS = {
     companyPlaceholder: 'Enter your company',
     emailLabel: 'E-mail',
     emailPlaceholder: 'Enter your email',
+    phoneLabel: 'Phone',
+    phonePlaceholder: 'Enter your phone number',
     submit: 'Book a Demo',
     selectDateFirst: 'Select a date to see available slots.',
   },
@@ -38,6 +40,8 @@ const LABELS = {
     companyPlaceholder: "Inserisci l'azienda",
     emailLabel: 'E-mail',
     emailPlaceholder: 'Inserisci la tua mail',
+    phoneLabel: 'Telefono',
+    phonePlaceholder: 'Inserisci il tuo numero',
     submit: 'Prenota una Demo',
     selectDateFirst: 'Seleziona una data per vedere gli orari disponibili.',
   },
@@ -64,6 +68,7 @@ function BookForm() {
   const [name,         setName]         = useState('')
   const [company,      setCompany]      = useState('')
   const [email,        setEmail]        = useState(emailFromCta)
+  const [phone,        setPhone]        = useState('')
   const [privacy,      setPrivacy]      = useState(false)
   const [loading,      setLoading]      = useState(false)
   const [bookedSlots,  setBookedSlots]  = useState<string[]>([])
@@ -75,11 +80,11 @@ function BookForm() {
 
   // Track FormComplete when all required fields are filled
   useEffect(() => {
-    if (name && email && date && time && privacy && !hasTrackedComplete) {
+    if (name && email && phone && date && time && privacy && !hasTrackedComplete) {
       setHasTrackedComplete(true)
       trackCustomEvent('FormComplete')
     }
-  }, [name, email, date, time, privacy, hasTrackedComplete])
+  }, [name, email, phone, date, time, privacy, hasTrackedComplete])
 
   const handleFormInteraction = () => {
     if (!hasTrackedStart) {
@@ -118,7 +123,7 @@ function BookForm() {
       const res = await fetch('/api/book', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome: name, company, email, date, time, lang }),
+        body: JSON.stringify({ nome: name, company, phone, email, date, time, lang }),
       })
       if (res.ok) success = true
     } catch (err) {
@@ -249,6 +254,22 @@ function BookForm() {
               placeholder={t.emailPlaceholder}
               value={email}
               onChange={e => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          {/* Phone */}
+          <div className="book__field">
+            <label className="book__label" htmlFor="book-phone">
+              {t.phoneLabel} <span>*</span>
+            </label>
+            <input
+              id="book-phone"
+              type="tel"
+              className="book__input"
+              placeholder={t.phonePlaceholder}
+              value={phone}
+              onChange={e => setPhone(e.target.value)}
               required
             />
           </div>

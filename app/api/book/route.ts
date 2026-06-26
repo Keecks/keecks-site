@@ -72,7 +72,7 @@ function emailHtml(nome: string, lang: string): string {
 
 // ── Admin notification email HTML ─────────────────────────────────────────
 function adminNotifyHtml(
-  nome: string, company: string | null, email: string,
+  nome: string, company: string | null, phone: string, email: string,
   date: string, time24: string,
   acceptUrl: string, rejectUrl: string, rescheduleUrl: string
 ): string {
@@ -109,6 +109,10 @@ function adminNotifyHtml(
                 <td style="padding:4px 0;font-size:15px;color:#e7e7e7;"><a href="mailto:${email}" style="color:#ff7005;text-decoration:none;">${email}</a></td>
               </tr>
               <tr>
+                <td style="padding:4px 0;font-size:13px;color:rgba(231,231,231,0.5);">Telefono</td>
+                <td style="padding:4px 0;font-size:15px;color:#e7e7e7;"><a href="tel:${phone}" style="color:#ff7005;text-decoration:none;">${phone}</a></td>
+              </tr>
+              <tr>
                 <td style="padding:4px 0;font-size:13px;color:rgba(231,231,231,0.5);">Data</td>
                 <td style="padding:4px 0;font-size:15px;color:#e7e7e7;">${dateIt}</td>
               </tr>
@@ -140,7 +144,12 @@ function adminNotifyHtml(
 
 export async function POST(req: NextRequest) {
   try {
-    const { nome, company, email, date, time, lang } = await req.json()
+    const { nome, company, phone, email, date, time, lang } = await req.json()
+
+    // Telefono obbligatorio
+    if (!phone || !String(phone).trim()) {
+      return NextResponse.json({ error: 'Phone required' }, { status: 400 })
+    }
 
     const time24 = toTime24(time)
 
@@ -165,9 +174,11 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         nome,
         company_name: company || null,
+        phone: String(phone).trim(),
         email,
         consultation_date: date,
         consultation_time: time24,
+        lang: lang === 'en' ? 'en' : 'it',
       }),
     })
 
@@ -229,7 +240,7 @@ export async function POST(req: NextRequest) {
         from: 'Keecks <noreply@keecks.ai>',
         to: [GIANMARCO_EMAIL],
         subject: `Nuova richiesta demo — ${nome}`,
-        html: adminNotifyHtml(nome, company || null, email, date, time24, acceptUrl, rejectUrl, rescheduleUrl),
+        html: adminNotifyHtml(nome, company || null, phone, email, date, time24, acceptUrl, rejectUrl, rescheduleUrl),
       }),
     })
 

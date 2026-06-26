@@ -6,10 +6,12 @@ type Booking = {
   created_at: string
   nome: string
   company_name: string | null
+  phone: string | null
   email: string
   consultation_date: string
   consultation_time: string
   confirmed: boolean
+  lang: string | null
 }
 
 // ── Slot logic (same as booking form) ────────────────────────────────────────
@@ -206,6 +208,7 @@ export default function AdminPage() {
         company_name: b.company_name,
         consultation_date: b.consultation_date,
         consultation_time: b.consultation_time,
+        lang: b.lang,
       }),
     })
     if (res.ok) {
