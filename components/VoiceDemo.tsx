@@ -1,6 +1,7 @@
 'use client'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { trackCustomEvent } from '@/components/MetaPixel'
 
 // Audio per lingua — stesso ordine dei TABS: [Salone, Clinica Medica, Ristorante]
 const AUDIO_FILES = {
@@ -114,8 +115,9 @@ export default function VoiceDemo() {
       }
       audio.play()
       setPlaying(true)
+      trackCustomEvent('DemoAudioPlay', { demo: tabs[active], lang })
     }
-  }, [playing])
+  }, [playing, tabs, active, lang])
 
   // Click on waveform — seek
   const handleWaveformClick = (e: React.MouseEvent<HTMLDivElement>) => {
