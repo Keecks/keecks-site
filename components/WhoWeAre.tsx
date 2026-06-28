@@ -1,4 +1,5 @@
 'use client'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { useLanguage } from '@/contexts/LanguageContext'
 
@@ -41,6 +42,52 @@ export default function WhoWeAre() {
   const { lang } = useLanguage()
   const c = CONTENT[lang]
 
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [active, setActive] = useState(0)
+
+  // Carosello premium su mobile: la card centrata è piena, le altre ridotte/attenuate.
+  useEffect(() => {
+    const track = trackRef.current
+    if (!track) return
+    const mq = window.matchMedia('(max-width: 699px)')
+    let raf = 0
+
+    const update = () => {
+      const list = Array.from(track.querySelectorAll<HTMLElement>('.who__card'))
+      if (!mq.matches) {
+        list.forEach(el => { el.style.transform = ''; el.style.opacity = '' })
+        return
+      }
+      const tr = track.getBoundingClientRect()
+      const center = tr.left + tr.width / 2
+      let best = 0, bestDist = Infinity
+      list.forEach((el, i) => {
+        const r = el.getBoundingClientRect()
+        const dist = Math.abs(r.left + r.width / 2 - center)
+        const t = Math.min(dist / r.width, 1)
+        el.style.transform = `scale(${(1 - t * 0.07).toFixed(3)})`
+        el.style.opacity = (1 - t * 0.35).toFixed(3)
+        if (dist < bestDist) { bestDist = dist; best = i }
+      })
+      setActive(best)
+    }
+
+    const onScroll = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(update) }
+    update()
+    track.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      track.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      cancelAnimationFrame(raf)
+    }
+  }, [lang])
+
+  const goTo = (i: number) => {
+    const card = trackRef.current?.querySelectorAll<HTMLElement>('.who__card')[i]
+    card?.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' })
+  }
+
   return (
     <section className="section section--steps">
       <div className="container">
@@ -49,7 +96,7 @@ export default function WhoWeAre() {
           <h2 className="section__title">{c.title}</h2>
         </div>
 
-        <div className="who__cards">
+        <div className="who__cards" ref={trackRef}>
           {c.cards.map((card, i) => (
             <div key={i} className="who__card">
               <div className="who__card-body">
@@ -66,6 +113,18 @@ export default function WhoWeAre() {
                 />
               </div>
             </div>
+          ))}
+        </div>
+
+        <div className="steps-dots">
+          {c.cards.map((card, i) => (
+            <button
+              key={i}
+              type="button"
+              className={`steps-dot${i === active ? ' is-active' : ''}`}
+              onClick={() => goTo(i)}
+              aria-label={`${i + 1}`}
+            />
           ))}
         </div>
       </div>

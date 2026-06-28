@@ -629,8 +629,8 @@ img, video { max-width: 100%; height: auto; display: block; }
 .steps::-webkit-scrollbar { display: none; }
 
 .step {
-  /* Mobile: 340px wide — 01.txt: grandezza card 340×246 */
-  flex: 0 0 340px;
+  /* Mobile: 316px come "Chi siamo" → la card successiva si intravede (spia scroll) */
+  flex: 0 0 316px;
   min-height: 246px;
   scroll-snap-align: start;
   background: var(--card);
@@ -655,6 +655,38 @@ img, video { max-width: 100%; height: auto; display: block; }
     min-height: 246px;
     scroll-snap-align: none;
   }
+}
+
+/* Carosello premium: la card scala dal centro */
+.step,
+.who__card {
+  transform-origin: center center;
+  will-change: transform, opacity;
+}
+
+/* Indicatore a puntini/pillola (solo mobile) */
+.steps-dots {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 20px;
+}
+.steps-dot {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: none;
+  border-radius: 100px;
+  background: rgba(231, 231, 231, 0.25);
+  cursor: pointer;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+.steps-dot.is-active {
+  width: 20px;
+  background: var(--white);
+}
+@media (min-width: 700px) {
+  .steps-dots { display: none; }
 }
 .step__num {
   font-size: 11px;                   /* Figma Section3: 11.045px */

@@ -27,7 +27,7 @@ const DURATIONS: Record<'en' | 'it', number[]> = {
 
 const TABS = {
   en: ['Hair Salon', 'Medical Clinic', 'Restaurant'],
-  it: ['Salone di parrucchieri', 'Clinica Medica', 'Ristorante'],
+  it: ['Parrucchieri', 'Clinica Medica', 'Ristorante'],
 }
 
 const SECTION_LABELS = {

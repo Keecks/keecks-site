@@ -1,4 +1,5 @@
 'use client'
+import { useEffect, useRef, useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 /* Illustrazioni step — SVG vettoriali AUTENTICI esportati da Figma
@@ -27,6 +28,52 @@ export default function HowItWorks() {
   const steps = STEPS[lang]
   const labels = LABELS[lang]
 
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [active, setActive] = useState(0)
+
+  // Carosello premium su mobile: la card centrata è piena, le altre ridotte/attenuate.
+  useEffect(() => {
+    const track = trackRef.current
+    if (!track) return
+    const mq = window.matchMedia('(max-width: 699px)')
+    let raf = 0
+
+    const update = () => {
+      const list = Array.from(track.querySelectorAll<HTMLElement>('.step'))
+      if (!mq.matches) {
+        list.forEach(c => { c.style.transform = ''; c.style.opacity = '' })
+        return
+      }
+      const tr = track.getBoundingClientRect()
+      const center = tr.left + tr.width / 2
+      let best = 0, bestDist = Infinity
+      list.forEach((c, i) => {
+        const r = c.getBoundingClientRect()
+        const dist = Math.abs(r.left + r.width / 2 - center)
+        const t = Math.min(dist / r.width, 1)            // 0 al centro → 1 a una card di distanza
+        c.style.transform = `scale(${(1 - t * 0.07).toFixed(3)})`
+        c.style.opacity = (1 - t * 0.35).toFixed(3)
+        if (dist < bestDist) { bestDist = dist; best = i }
+      })
+      setActive(best)
+    }
+
+    const onScroll = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(update) }
+    update()
+    track.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      track.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      cancelAnimationFrame(raf)
+    }
+  }, [lang])
+
+  const goTo = (i: number) => {
+    const card = trackRef.current?.querySelectorAll<HTMLElement>('.step')[i]
+    card?.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' })
+  }
+
   return (
     <section className="section section--steps">
       <div className="container">
@@ -37,7 +84,7 @@ export default function HowItWorks() {
           </h2>
         </div>
 
-        <div className="steps">
+        <div className="steps" ref={trackRef}>
           {steps.map((step) => (
             <div key={step.num} className="step">
               <span className="step__num">{step.num}</span>
@@ -48,6 +95,18 @@ export default function HowItWorks() {
                 <img src={step.illust} alt="" aria-hidden="true" className={`step__svg step__svg--${step.kind}`} />
               </div>
             </div>
+          ))}
+        </div>
+
+        <div className="steps-dots">
+          {steps.map((s, i) => (
+            <button
+              key={s.num}
+              type="button"
+              className={`steps-dot${i === active ? ' is-active' : ''}`}
+              onClick={() => goTo(i)}
+              aria-label={`Step ${i + 1}`}
+            />
           ))}
         </div>
       </div>
