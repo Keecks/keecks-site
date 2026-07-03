@@ -435,13 +435,10 @@ img, video { max-width: 100%; height: auto; display: block; }
 }
 /* FAQ: header (chip + titolo) centrato — come da Figma */
 .section--faq .section__header { text-align: center; }
-/* How It Works / Who We Are: le card NON sfondano a sinistra — il loro bordo
-   sinistro resta allineato all'header (chip + titolo), come nel Figma. */
-.section--steps .steps,
-.section--steps .who__cards {
-  margin-inline: 0;
-  padding-inline: 0;
-}
+/* How It Works / Who We Are: su mobile le card sfondano a tutta larghezza
+   (breakout dal base .steps/.who__cards) → la card successiva si intravede
+   meglio anche su iPhone "normale". Su desktop il reset a 0 lo fanno i
+   @media (min-width: 700px). */
 .section__tag {
   display: inline-flex;
   margin-bottom: 14px;
@@ -2020,6 +2017,11 @@ img, video { max-width: 100%; height: auto; display: block; }
   right: 0; top: 0;
   width: 100%; height: 100%;
   opacity: 0; cursor: pointer;
+}
+/* Allinea il valore della data a sinistra come gli altri campi
+   (rimuove il padding interno nativo dell'input date) */
+.lp-form__date-wrap input[type="date"]::-webkit-datetime-edit {
+  padding: 0;
 }
 
 /* Time slots */

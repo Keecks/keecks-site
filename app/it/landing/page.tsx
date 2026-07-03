@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { trackEvent, trackCustomEvent } from '@/components/MetaPixel'
 import { getTimeSlots, getTomorrowISO } from '@/lib/slots'
@@ -16,7 +16,7 @@ function formatTime(seconds: number) {
 }
 
 const AUDIO_SRC = '/audio/Keecks_Assistente-Vocale-AI_Salone-di-Parrucchieri-Parrucchiere-Hairdresser_Italiano.mp3'
-const AUDIO_DURATION = 116
+const AUDIO_DURATION = 115  // durata REALE del clip (l'MP3 VBR riporta una durata sbagliata)
 
 // ── Logo SVG ──────────────────────────────────────────────────────────────────
 function LogoSvg({ fill = '#E7E7E7' }: { fill?: string }) {
@@ -33,55 +33,56 @@ function AudioPlayer() {
   const [progress,    setProgress]    = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
 
-  const audioRef      = useRef<HTMLAudioElement | null>(null)
-  const intervalRef   = useRef<ReturnType<typeof setInterval> | null>(null)
-  const wallStartRef  = useRef(0)
-  const audioStartRef = useRef(0)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
-  const clearTicker = () => {
-    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null }
-  }
+  // Usa la posizione REALE dell'audio (timeupdate) contro la durata reale,
+  // non un timer a orologio → niente desincronizzazione.
+  useEffect(() => {
+    const audio = new Audio(AUDIO_SRC)
+    audioRef.current = audio
 
-  const getAudio = useCallback(() => {
-    if (!audioRef.current) {
-      const a = new Audio(AUDIO_SRC)
-      a.addEventListener('ended', () => {
-        clearTicker(); setPlaying(false); setProgress(0); setCurrentTime(0); a.currentTime = 0
-      })
-      audioRef.current = a
+    const onTime = () => {
+      const t = Math.min(audio.currentTime, AUDIO_DURATION)
+      setCurrentTime(t)
+      setProgress(AUDIO_DURATION ? t / AUDIO_DURATION : 0)
     }
-    return audioRef.current
+    const onEnded = () => {
+      // la waveform si completa al 100% esattamente a fine audio
+      setPlaying(false)
+      setProgress(1)
+      setCurrentTime(AUDIO_DURATION)
+    }
+    audio.addEventListener('timeupdate', onTime)
+    audio.addEventListener('ended', onEnded)
+    return () => {
+      audio.pause()
+      audio.removeEventListener('timeupdate', onTime)
+      audio.removeEventListener('ended', onEnded)
+    }
   }, [])
 
   const togglePlay = () => {
-    const audio = getAudio()
+    const audio = audioRef.current
+    if (!audio) return
     if (playing) {
-      audio.pause(); clearTicker(); setPlaying(false)
+      audio.pause(); setPlaying(false)
     } else {
-      wallStartRef.current  = Date.now()
-      audioStartRef.current = audio.currentTime
-      audio.play()
-      setPlaying(true)
-      intervalRef.current = setInterval(() => {
-        const elapsed = (Date.now() - wallStartRef.current) / 1000
-        const t = Math.min(audioStartRef.current + elapsed, AUDIO_DURATION)
-        setCurrentTime(t); setProgress(t / AUDIO_DURATION)
-      }, 100)
+      if (audio.ended) { audio.currentTime = 0; setProgress(0); setCurrentTime(0) }
+      audio.play(); setPlaying(true)
     }
   }
 
   const handleWaveClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const audio = getAudio()
+    const audio = audioRef.current
+    if (!audio) return
     const rect  = e.currentTarget.getBoundingClientRect()
     const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
-    const seekTo = ratio * AUDIO_DURATION
-    audio.currentTime = seekTo
-    wallStartRef.current  = Date.now()
-    audioStartRef.current = seekTo
-    setCurrentTime(seekTo); setProgress(ratio)
+    audio.currentTime = ratio * AUDIO_DURATION
+    setCurrentTime(ratio * AUDIO_DURATION); setProgress(ratio)
   }
 
-  const playedCount = Math.round(progress * BARS.length)
+  // floor (non round): la barra si riempie in sincrono e arriva in fondo a fine audio
+  const playedCount = Math.floor(progress * BARS.length)
 
   return (
     <div className="lp-player">
