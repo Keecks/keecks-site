@@ -4,7 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { trackCustomEvent } from '@/components/MetaPixel'
 
 // Audio per lingua — stesso ordine dei TABS: [Salone, Clinica Medica, Ristorante]
-const AUDIO_FILES = {
+export const AUDIO_FILES = {
   en: [
     '/audio/Keecks_AI-Voice-Assistant_Hair-Beauty-Salon-Hairdresser_English.mp3',
     '/audio/Keecks_AI-Voice-Assistant_Medical-Center_Dental-Clinic_Botox-Filler_Healthcare_English.mp3',
@@ -20,12 +20,12 @@ const AUDIO_FILES = {
 // Durate REALI degli MP3 in secondi — i browser riportano durate sbagliate
 // (più corte) per gli MP3 VBR, quindi usiamo i valori reali.
 // Ordine come AUDIO_FILES/TABS: [Salone/Hair, Clinica/Medical, Ristorante/Restaurant].
-const DURATIONS: Record<'en' | 'it', number[]> = {
+export const DURATIONS: Record<'en' | 'it', number[]> = {
   en: [118, 96, 122],   // Hair 1:58 · Medical 1:36 · Restaurant 2:02
   it: [115, 132, 122],  // Parrucchieri 1:55 · Clinica 2:12 · Ristorante 2:02
 }
 
-const TABS = {
+export const TABS = {
   en: ['Hair Salon', 'Medical Clinic', 'Restaurant'],
   it: ['Parrucchieri', 'Clinica Medica', 'Ristorante'],
 }
