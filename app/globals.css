@@ -1905,6 +1905,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   flex: 1;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 2px;
   height: 28px;
   overflow: hidden;
