@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createHoldEvent } from '@/lib/google-calendar'
 import { signToken, getBaseUrl } from '@/lib/adminToken'
+import { getUsSlots, usToRome, zonedToDate, formatTime12, US_TZ } from '@/lib/usTime'
 
 // Strip invisible BOM (U+FEFF) that can sneak into env values via copy-paste
 const clean = (s?: string) => (s ?? '').replace(/^\uFEFF/, '').trim()
@@ -74,7 +75,8 @@ function emailHtml(nome: string, lang: string): string {
 function adminNotifyHtml(
   nome: string, company: string | null, phone: string, email: string,
   date: string, time24: string,
-  acceptUrl: string, rejectUrl: string, rescheduleUrl: string
+  acceptUrl: string, rejectUrl: string, rescheduleUrl: string,
+  usTime?: string
 ): string {
   const dateIt = formatDate(date)
   const timeIt = time24.slice(0, 5)
@@ -118,7 +120,7 @@ function adminNotifyHtml(
               </tr>
               <tr>
                 <td style="padding:4px 0;font-size:13px;color:rgba(231,231,231,0.5);">Ora</td>
-                <td style="padding:4px 0;font-size:15px;color:#e7e7e7;">${timeIt}</td>
+                <td style="padding:4px 0;font-size:15px;color:#e7e7e7;">${timeIt}${usTime ? ` <span style="color:rgba(231,231,231,0.5);">(cliente USA: ${usTime} ET)</span>` : ''}</td>
               </tr>
             </table>
           </div>
@@ -144,11 +146,23 @@ function adminNotifyHtml(
 
 export async function POST(req: NextRequest) {
   try {
-    const { nome, company, phone, email, date, time, lang } = await req.json()
+    const body = await req.json()
+    const { nome, company, phone, email, lang } = body
+    let { date, time } = body
 
     // Telefono obbligatorio
     if (!phone || !String(phone).trim()) {
       return NextResponse.json({ error: 'Phone required' }, { status: 400 })
+    }
+
+    // Landing inglese: data e ora arrivano in Eastern Time, si salvano in ora di Roma
+    let usTime: string | undefined
+    if (body.tz === US_TZ) {
+      if (!getUsSlots(date).includes(time)) {
+        return NextResponse.json({ error: 'Invalid slot' }, { status: 400 })
+      }
+      usTime = formatTime12(zonedToDate(date, time, US_TZ), US_TZ)
+      ;({ date, time } = usToRome(date, time))
     }
 
     const time24 = toTime24(time)
@@ -240,7 +254,7 @@ export async function POST(req: NextRequest) {
         from: 'Keecks <noreply@keecks.ai>',
         to: [GIANMARCO_EMAIL],
         subject: `Nuova richiesta demo — ${nome}`,
-        html: adminNotifyHtml(nome, company || null, phone, email, date, time24, acceptUrl, rejectUrl, rescheduleUrl),
+        html: adminNotifyHtml(nome, company || null, phone, email, date, time24, acceptUrl, rejectUrl, rescheduleUrl, usTime),
       }),
     })
 

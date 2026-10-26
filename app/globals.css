@@ -2072,6 +2072,15 @@ img, video { max-width: 100%; height: auto; display: block; }
   margin: 8px 0 0;
 }
 
+/* Fuso orario degli slot (landing inglese) */
+.lp-form__tz {
+  margin: 0 0 10px;
+}
+.lp-form__tz strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
 /* Two-column row */
 .lp-form__row {
   display: grid;

@@ -2,7 +2,8 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { trackEvent, trackCustomEvent } from '@/components/MetaPixel'
-import { getTimeSlots, getTomorrowISO } from '@/lib/slots'
+import { getTomorrowISO } from '@/lib/slots'
+import { getUsSlots, zonedToDate, dateToZoned, formatTime12, US_TZ } from '@/lib/usTime'
 import { useHideOnScroll } from '@/lib/useHideOnScroll'
 import { AUDIO_FILES, DURATIONS, TABS } from '@/components/VoiceDemo'
 
@@ -144,7 +145,24 @@ function AudioPlayer() {
 }
 
 // ── Book Form ─────────────────────────────────────────────────────────────────
+// Slot in Eastern Time, mostrati nel fuso di chi guarda. Il fuso si legge solo
+// nel browser, quindi al primo render (server) si parte da ET.
+function useViewerZone() {
+  const [zone, setZone] = useState({ tz: US_TZ, label: 'Eastern Time (ET)' })
+  useEffect(() => {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+      if (!tz || tz === US_TZ) return
+      const name = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'longGeneric' })
+        .formatToParts(new Date()).find(p => p.type === 'timeZoneName')?.value
+      setZone({ tz, label: name ?? tz })
+    } catch {}
+  }, [])
+  return zone
+}
+
 function BookForm() {
+  const zone = useViewerZone()
   const [date,         setDate]         = useState('')
   const [time,         setTime]         = useState('')
   const [name,         setName]         = useState('')
@@ -178,7 +196,7 @@ function BookForm() {
   useEffect(() => {
     if (!date) { setBookedSlots([]); return }
     setLoadingSlots(true)
-    fetch(`/api/availability?date=${date}`)
+    fetch(`/api/availability?date=${date}&tz=${encodeURIComponent(US_TZ)}`)
       .then(r => r.json())
       .then(d => setBookedSlots(d.booked ?? []))
       .catch(() => setBookedSlots([]))
@@ -194,7 +212,7 @@ function BookForm() {
       await fetch('/api/book', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome: name, company, phone, email, date, time, lang: 'en' }),
+        body: JSON.stringify({ nome: name, company, phone, email, date, time, tz: US_TZ, lang: 'en' }),
       })
       window.location.href = '/book/confirmed'
     } catch {
@@ -228,14 +246,23 @@ function BookForm() {
       {/* Time slots — appaiono in base al giorno scelto (come il book page) */}
       <div className="lp-form__field">
         <label className="lp-form__label">Consultation Time</label>
+        <p className="lp-form__hint lp-form__tz">
+          Times in <strong>{zone.label}</strong>
+          {zone.tz !== US_TZ && <> · Mon–Fri 12pm–7pm ET, Sat–Sun 7am–8pm ET</>}
+        </p>
         {!date ? (
           <p className="lp-form__hint">Select a date to see available slots.</p>
         ) : loadingSlots ? (
           <p className="lp-form__hint">…</p>
         ) : (
           <div className="lp-form__times">
-            {getTimeSlots(date).flatMap(g => g.slots).map(slot => {
+            {getUsSlots(date).map(slot => {
               const booked = bookedSlots.includes(slot)
+              const at = zonedToDate(date, slot, US_TZ)
+              const localDay = dateToZoned(at, zone.tz).date
+              const dayNote = localDay !== date
+                ? ' ' + at.toLocaleDateString('en-US', { timeZone: zone.tz, weekday: 'short' })
+                : ''
               return (
                 <button
                   key={slot}
@@ -245,7 +272,7 @@ function BookForm() {
                   disabled={booked}
                   title={booked ? 'Not available' : undefined}
                 >
-                  {slot}
+                  {formatTime12(at, zone.tz)}{dayNote}
                 </button>
               )
             })}

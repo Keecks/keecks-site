@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCalendarClient } from '@/lib/google-calendar'
+import { getUsSlots, zonedToDate, dateToZoned, US_TZ, ROME_TZ } from '@/lib/usTime'
 
 const clean = (s?: string) => (s ?? '').replace(/^﻿/, '').trim()
 const SUPABASE_URL         = clean(process.env.SUPABASE_URL)
@@ -62,9 +63,50 @@ function toOffsetStr(offsetMinutes: number): string {
   return `${sign}${pad(Math.floor(abs / 60))}:${pad(abs % 60)}`
 }
 
+// Landing inglese: slot in Eastern Time. Una giornata ET a Roma copre due date
+// (es. 12pm-7pm ET = 18:00-01:00), quindi si controllano entrambe.
+async function getUsBooked(date: string): Promise<string[]> {
+  const slots = getUsSlots(date).map(slot => {
+    const start = zonedToDate(date, slot, US_TZ)
+    return { slot, start, rome: dateToZoned(start, ROME_TZ) }
+  })
+  if (!slots.length) return []
+
+  const romeDates = Array.from(new Set(slots.map(s => s.rome.date)))
+  const taken = new Set<string>()
+  for (const d of romeDates) {
+    for (const t of await getSupabaseBookedSlots(d)) taken.add(`${d} ${t}`)
+  }
+
+  let busy: { start: Date; end: Date }[] = []
+  try {
+    const calendar = await getCalendarClient()
+    const fbRes = await calendar.freebusy.query({
+      requestBody: {
+        timeMin: slots[0].start.toISOString(),
+        timeMax: new Date(slots[slots.length - 1].start.getTime() + 30 * 60_000).toISOString(),
+        items: [{ id: 'primary' }],
+      },
+    })
+    busy = (fbRes.data.calendars?.primary?.busy ?? []).map(b => ({ start: new Date(b.start!), end: new Date(b.end!) }))
+  } catch (err) {
+    console.error('Calendar freebusy error:', err)
+  }
+
+  return slots
+    .filter(({ start, rome }) => {
+      const end = new Date(start.getTime() + 30 * 60_000)
+      return taken.has(`${rome.date} ${rome.time}`) || busy.some(b => start < b.end && end > b.start)
+    })
+    .map(s => s.slot)
+}
+
 export async function GET(req: NextRequest) {
   const date = req.nextUrl.searchParams.get('date')
   if (!date) return NextResponse.json({ booked: [] })
+  if (req.nextUrl.searchParams.get('tz') === US_TZ) {
+    return NextResponse.json({ booked: await getUsBooked(date) })
+  }
 
   const slots = getAvailableSlots(date)
 

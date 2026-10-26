@@ -35,11 +35,11 @@ export async function getCalendarClient() {
 export function buildEventTimes(date: string, time: string) {
   const timeShort = time.slice(0, 5)              // "HH:MM"
   const start = `${date}T${timeShort}:00`         // "YYYY-MM-DDTHH:MM:00"
+  // +30 min, passando al giorno dopo se lo slot è alle 23:30
+  const [y, mo, d] = date.split('-').map(Number)
   const [h, m] = timeShort.split(':').map(Number)
-  const endTotal = h * 60 + m + 30                // +30 min
-  const endH = String(Math.floor(endTotal / 60)).padStart(2, '0')
-  const endM = String(endTotal % 60).padStart(2, '0')
-  const end  = `${date}T${endH}:${endM}:00`
+  const e = new Date(Date.UTC(y, mo - 1, d, h, m + 30))
+  const end = e.toISOString().slice(0, 19)
   return { start, end }
 }
 

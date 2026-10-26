@@ -1,6 +1,8 @@
 // Template email condivisi (conferma + riprogrammazione), bilingue IT/EN.
 // Usati da app/api/admin/confirm, app/api/admin/approve e app/api/admin/reschedule.
 
+import { formatUsDateTime } from '@/lib/usTime'
+
 export type Lang = 'it' | 'en'
 
 function formatDate(d: string): string {
@@ -55,7 +57,7 @@ export function confirmEmailHtml(
     sign: 'A presto,<br/>Gianmarco',
   } : {
     greeting: `Dear ${nome},`,
-    p1: `our appointment is confirmed for <strong style="color:#e7e7e7;">${dateStr}</strong> at <strong style="color:#e7e7e7;">${timeStr}</strong>.`,
+    p1: `our appointment is confirmed for <strong style="color:#e7e7e7;">${formatUsDateTime(date, time)}</strong>.`,
     p2: `During the call, we'll take the time to understand your business and explore together how Keecks can support it. You'll also get to try our voice assistant live and ask any questions you may have.`,
     meetLabel: 'Call link (Google Meet)',
     eventLabel: 'Calendar event',
@@ -113,7 +115,7 @@ export function rescheduleEmailHtml(
           <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:rgba(231,231,231,0.75);">${t.p1}</p>
           <div style="margin:0 0 28px;padding:20px 24px;background:rgba(255,112,5,0.08);border:1px solid rgba(255,112,5,0.25);border-radius:12px;">
             <p style="margin:0 0 6px;font-size:13px;color:rgba(231,231,231,0.5);text-transform:uppercase;letter-spacing:0.06em;">${t.boxLabel}</p>
-            <p style="margin:0;font-size:22px;font-weight:600;color:#e7e7e7;letter-spacing:-0.02em;">${formatDate(newDate)} — ${formatTime(newTime)}</p>
+            <p style="margin:0;font-size:22px;font-weight:600;color:#e7e7e7;letter-spacing:-0.02em;">${isIt ? `${formatDate(newDate)} — ${formatTime(newTime)}` : formatUsDateTime(newDate, newTime)}</p>
           </div>
           <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:rgba(231,231,231,0.75);">${t.p2}</p>
           <p style="margin:0;font-size:14px;line-height:1.8;color:rgba(231,231,231,0.6);">${t.sign}</p>`
