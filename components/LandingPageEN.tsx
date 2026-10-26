@@ -248,7 +248,6 @@ function BookForm() {
         <label className="lp-form__label">Consultation Time</label>
         <p className="lp-form__hint lp-form__tz">
           Times in <strong>{zone.label}</strong>
-          {zone.tz !== US_TZ && <> · Mon–Fri 12pm–7pm ET, Sat–Sun 7am–8pm ET</>}
         </p>
         {!date ? (
           <p className="lp-form__hint">Select a date to see available slots.</p>
