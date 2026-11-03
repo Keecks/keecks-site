@@ -13,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/it/book`,    lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${BASE}/landing`,    lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${BASE}/it/landing`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${BASE}/it/assistente-ai`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${BASE}/privacy`,    lastModified: now, changeFrequency: 'yearly',  priority: 0.3 },
     { url: `${BASE}/it/privacy`, lastModified: now, changeFrequency: 'yearly',  priority: 0.3 },
     { url: `${BASE}/cookies`,    lastModified: now, changeFrequency: 'yearly',  priority: 0.3 },
