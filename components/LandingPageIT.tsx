@@ -153,6 +153,7 @@ function BookForm() {
   const [phone,        setPhone]        = useState('')
   const [privacy,      setPrivacy]      = useState(false)
   const [loading,      setLoading]      = useState(false)
+  const [sendError,    setSendError]    = useState(false)
   const [bookedSlots,  setBookedSlots]  = useState<string[]>([])
   const [loadingSlots, setLoadingSlots] = useState(false)
 
@@ -190,16 +191,21 @@ function BookForm() {
     if (!time) return
     trackEvent('SubmitApplication')
     setLoading(true)
+    setSendError(false)
     try {
-      await fetch('/api/book', {
+      const res = await fetch('/api/book', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nome: name, company, phone, email, date, time, lang: 'it' }),
       })
-      window.location.href = '/it/book/confirmed'
-    } catch {
-      setLoading(false)
-    }
+      // Alla pagina di conferma solo se il server ha salvato davvero la richiesta
+      if (res.ok) {
+        window.location.href = '/it/book/confirmed'
+        return
+      }
+    } catch {}
+    setSendError(true)
+    setLoading(false)
   }
 
   return (
@@ -293,6 +299,11 @@ function BookForm() {
       <button type="submit" className="lp-form__submit" disabled={loading || !time}>
         {loading ? '...' : 'Prenota una Demo'}
       </button>
+      {sendError && (
+        <p className="lp-form__error" role="alert">
+          Non siamo riusciti a inviare la richiesta. Riprova tra qualche minuto.
+        </p>
+      )}
     </form>
   )
 }

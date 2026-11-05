@@ -25,6 +25,7 @@ const LABELS = {
     phoneLabel: 'Phone',
     phonePlaceholder: 'Enter your phone number',
     submit: 'Book a Demo',
+    sendError: "We couldn't send your request. Please try again in a few minutes.",
     selectDateFirst: 'Select a date to see available slots.',
   },
   it: {
@@ -43,6 +44,7 @@ const LABELS = {
     phoneLabel: 'Telefono',
     phonePlaceholder: 'Inserisci il tuo numero',
     submit: 'Prenota una Demo',
+    sendError: 'Non siamo riusciti a inviare la richiesta. Riprova tra qualche minuto.',
     selectDateFirst: 'Seleziona una data per vedere gli orari disponibili.',
   },
 }
@@ -71,6 +73,7 @@ function BookForm() {
   const [phone,        setPhone]        = useState('')
   const [privacy,      setPrivacy]      = useState(false)
   const [loading,      setLoading]      = useState(false)
+  const [sendError,    setSendError]    = useState(false)
   const [bookedSlots,  setBookedSlots]  = useState<string[]>([])
   const [loadingSlots, setLoadingSlots] = useState(false)
 
@@ -118,6 +121,7 @@ function BookForm() {
     trackEvent('SubmitApplication')
     
     setLoading(true)
+    setSendError(false)
     let success = false
     try {
       const res = await fetch('/api/book', {
@@ -132,6 +136,7 @@ function BookForm() {
     if (success) {
       router.push(lp(lang, '/book/confirmed'))
     } else {
+      setSendError(true)
       setLoading(false)
     }
   }
@@ -295,6 +300,7 @@ function BookForm() {
           <button type="submit" className="book__submit" disabled={loading || !time}>
             {loading ? '...' : t.submit}
           </button>
+          {sendError && <p className="lp-form__error" role="alert">{t.sendError}</p>}
 
         </form>
       </div>

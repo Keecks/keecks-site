@@ -145,6 +145,9 @@ function adminNotifyHtml(
 }
 
 export async function POST(req: NextRequest) {
+  // Passaggio in corso: se qualcosa si rompe, finisce nei log e nella risposta
+  // (solo il nome del passaggio, nessun dato o chiave)
+  let stage = 'input'
   try {
     const body = await req.json()
     const { nome, company, phone, email, lang } = body
@@ -177,6 +180,11 @@ export async function POST(req: NextRequest) {
     }
 
     // ── 1. Save to Supabase (return row to get the ID) ───────────
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+      console.error('API /book: SUPABASE_URL o SUPABASE_SERVICE_KEY mancanti')
+      return NextResponse.json({ error: 'Server error', stage: 'config' }, { status: 500 })
+    }
+    stage = 'db'
     const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/FormSito`, {
       method: 'POST',
       headers: {
@@ -198,14 +206,15 @@ export async function POST(req: NextRequest) {
 
     if (!insertRes.ok) {
       const err = await insertRes.text()
-      console.error('Supabase insert error:', err)
-      return NextResponse.json({ error: 'DB error' }, { status: 500 })
+      console.error('Supabase insert error:', insertRes.status, err)
+      return NextResponse.json({ error: 'DB error', stage, status: insertRes.status }, { status: 500 })
     }
 
     const [inserted] = await insertRes.json()
     const bookingId = inserted.id
 
     // ── 1b. Create a tentative "hold" event so the slot is blocked now ──
+    stage = 'calendar'
     await createHoldEvent({
       bookingId,
       nome,
@@ -216,6 +225,7 @@ export async function POST(req: NextRequest) {
     })
 
     // ── 2. Send Email 1 to client (confirmation receipt) ─────────
+    stage = 'mail-cliente'
     const isIt = lang === 'it'
     const emailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -233,11 +243,12 @@ export async function POST(req: NextRequest) {
 
     if (!emailRes.ok) {
       const err = await emailRes.text()
-      console.error('Resend error:', err)
+      console.error('Resend error:', emailRes.status, err)
       // Non blocchiamo il flusso: la prenotazione è salvata, solo l'email è fallita
     }
 
     // ── 3. Send admin notification to Gianmarco ──────────────────
+    stage = 'mail-admin'
     const token = signToken(bookingId)
     const baseUrl = getBaseUrl()
     const acceptUrl     = `${baseUrl}/api/admin/approve?id=${bookingId}&token=${token}&action=accept`
@@ -260,12 +271,17 @@ export async function POST(req: NextRequest) {
 
     if (!adminEmailRes.ok) {
       const err = await adminEmailRes.text()
-      console.error('Resend admin notify error:', err)
+      console.error('Resend admin notify error:', adminEmailRes.status, err)
     }
 
-    return NextResponse.json({ ok: true })
+    // La prenotazione è salvata anche se una mail fallisce: lo stato delle mail
+    // torna nella risposta così un errore di Resend non resta invisibile
+    return NextResponse.json({
+      ok: true,
+      mail: { cliente: emailRes.status, admin: adminEmailRes.status },
+    })
   } catch (e) {
-    console.error('API /book error:', e)
-    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+    console.error(`API /book error (${stage}):`, e)
+    return NextResponse.json({ error: 'Server error', stage }, { status: 500 })
   }
 }

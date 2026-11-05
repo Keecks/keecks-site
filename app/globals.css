@@ -2148,6 +2148,14 @@ img, video { max-width: 100%; height: auto; display: block; }
 }
 .lp-form__submit:hover:not(:disabled) { opacity: 0.88; }
 .lp-form__submit:disabled { opacity: 0.45; cursor: not-allowed; }
+.lp-form__error {
+  margin: 10px 0 0;
+  font-family: var(--body);
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+  color: #fff;
+}
 
 /* ── Section 4 — CTA finale ── */
 .lp-cta {
